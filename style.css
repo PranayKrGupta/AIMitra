@@ -59,6 +59,104 @@ body:not(.is-logged-out) .logged-out-only {
     display: none !important;
 }
 
+.global-menu-toggle {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1001; /* Above sidebar */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.global-menu-toggle:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+}
+
+.sidebar.collapsed {
+    width: 68px;
+    transform: none; /* No longer translating out of view */
+    overflow: hidden;
+}
+
+.sidebar.collapsed .sidebar-header,
+.sidebar.collapsed .sidebar-footer {
+    padding-left: 14px;
+    padding-right: 14px;
+    align-items: center;
+}
+
+.sidebar.collapsed span,
+.sidebar.collapsed .user-info,
+.sidebar.collapsed .section-label {
+    display: none !important;
+}
+
+.sidebar.collapsed .new-chat-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .chat-history {
+    align-items: center;
+}
+
+.sidebar.collapsed .history-item {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-content {
+    overflow-x: hidden;
+    overflow-y: hidden; /* Hide scrollbar when collapsed */
+    padding: 0;
+}
+
+.sidebar.collapsed .footer-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .user-profile {
+    padding: 4px;
+    justify-content: center;
+}
+
+.sidebar.collapsed .logout-btn {
+    display: none; /* Hide logout in mini view */
+}
+
+/* Scrollbar Removal */
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+.sidebar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .app-container {
     display: flex;
     height: 100vh;
@@ -73,7 +171,7 @@ body:not(.is-logged-out) .logged-out-only {
     display: flex;
     flex-direction: column;
     z-index: 100;
-    transition: transform var(--transition-speed) ease;
+    transition: width var(--transition-speed) ease, transform var(--transition-speed) ease;
 }
 
 .sidebar-header {
@@ -116,7 +214,7 @@ body:not(.is-logged-out) .logged-out-only {
 .new-chat-btn {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 10px;
     padding: 12px;
     background: transparent;
@@ -126,6 +224,7 @@ body:not(.is-logged-out) .logged-out-only {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .new-chat-btn:hover {
@@ -158,6 +257,7 @@ body:not(.is-logged-out) .logged-out-only {
 .history-item {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 12px;
     padding: 10px 12px;
     border-radius: 10px;
@@ -166,8 +266,6 @@ body:not(.is-logged-out) .logged-out-only {
     transition: all 0.2s;
     font-size: 0.9rem;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .history-item:hover, .history-item.active {
@@ -232,6 +330,7 @@ body:not(.is-logged-out) .logged-out-only {
 .footer-btn {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 12px;
     padding: 10px 12px;
     background: transparent;
@@ -241,6 +340,7 @@ body:not(.is-logged-out) .logged-out-only {
     font-size: 0.9rem;
     width: 100%;
     border-radius: 8px;
+    white-space: nowrap;
 }
 
 .footer-btn:hover {
@@ -257,11 +357,18 @@ body:not(.is-logged-out) .logged-out-only {
     background: var(--surface-hover);
 }
 
-.avatar {
+.avatar-letter {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    object-fit: cover;
+    background: var(--accent-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
 }
 
 .user-info {
@@ -318,6 +425,12 @@ body:not(.is-logged-out) .logged-out-only {
     position: sticky;
     top: 0;
     z-index: 10;
+    transition: padding-left var(--transition-speed) ease;
+}
+
+/* Push header content if sidebar is collapsed so text doesn't hide behind hamburger */
+.sidebar.collapsed + .chat-container .chat-header {
+    padding-left: 74px; /* Adjust to clear the mini-sidebar + hamburger area */
 }
 
 .menu-toggle {
@@ -532,13 +645,19 @@ body:not(.is-logged-out) .logged-out-only {
     margin: 0 auto;
     background: var(--surface-hover);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 8px 12px;
+    border-radius: 24px;
+    padding: 6px 16px;
     display: flex;
-    align-items: flex-end;
-    gap: 8px;
+    align-items: center;
+    gap: 12px;
     box-shadow: var(--shadow-main);
     transition: border-color 0.2s;
+}
+
+.input-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .input-wrapper:focus-within {
@@ -551,10 +670,10 @@ body:not(.is-logged-out) .logged-out-only {
     border: none;
     color: var(--text-main);
     resize: none;
-    padding: 10px 4px;
+    padding: 12px 0;
     max-height: 200px;
     outline: none;
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.5;
 }
 
@@ -578,15 +697,15 @@ body:not(.is-logged-out) .logged-out-only {
 }
 
 .send-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
-    background: var(--text-main);
-    color: var(--bg-dark);
-    border-radius: 8px;
+    background: #0b57d0;
+    color: white;
+    border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -598,8 +717,8 @@ body:not(.is-logged-out) .logged-out-only {
 }
 
 .send-btn:not(:disabled):hover {
-    background: white;
-    transform: translateY(-1px);
+    background: #0842a0;
+    transform: scale(1.05);
 }
 
 .disclaimer {

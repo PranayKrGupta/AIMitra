@@ -13,15 +13,18 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="is-logged-out">
+<body>
+    <!-- Floating Menu Toggle -->
+    <button class="global-menu-toggle" id="globalSidebarToggle" title="Collapse menu">
+        <i data-lucide="menu"></i>
+    </button>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
-                    <div class="logo-icon"></div>
-                    <span>AI Mitra</span>
-                </div>
+                <!-- Spacing for fixed menu button -->
+                <div style="height: 40px;"></div>
                 <button class="new-chat-btn" id="newChatBtn">
                     <i data-lucide="plus"></i>
                     <span>New Chat</span>
@@ -59,10 +62,9 @@
                 </button>
                 
                 <div class="user-profile logged-in-only">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User Avatar" class="avatar" id="userAvatar">
+                    <div class="avatar-letter" id="userAvatarLetter">G</div>
                     <div class="user-info">
                         <span class="user-name" id="userNameLabel">Guest User</span>
-                        <span class="user-plan">Pro Plan</span>
                     </div>
                     <button class="logout-btn" title="Logout" onclick="simulateLogout()">
                         <i data-lucide="log-out"></i>
@@ -74,17 +76,17 @@
         <!-- Main Chat Area -->
         <main class="chat-container">
             <header class="chat-header">
-                <button class="menu-toggle" id="menuToggle">
-                    <i data-lucide="menu"></i>
-                </button>
+                <div class="header-left">
+                    <div class="logo">
+                        <div class="logo-icon"></div>
+                        <span>AI Mitra</span>
+                    </div>
+                </div>
                 <div class="model-selector">
                     <span class="model-name">AI Mitra 2.0 Turbo</span>
                     <i data-lucide="chevron-down"></i>
                 </div>
                 <div class="header-actions">
-                    <button class="action-btn logged-in-only" title="Share">
-                        <i data-lucide="share-2"></i>
-                    </button>
                     <button class="action-btn theme-toggle" id="themeToggle" title="Toggle Theme">
                         <i data-lucide="moon"></i>
                     </button>
@@ -116,11 +118,6 @@
 
             <footer class="input-area">
                 <div class="input-wrapper">
-                    <div class="input-actions-left">
-                        <button class="input-btn" title="Attach Files">
-                            <i data-lucide="paperclip"></i>
-                        </button>
-                    </div>
                     <textarea id="chatInput" placeholder="Message AI Mitra..." rows="1"></textarea>
                     <div class="input-actions-right">
                         <button class="input-btn mic-btn" title="Voice Input">

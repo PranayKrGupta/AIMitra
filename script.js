@@ -14,12 +14,13 @@ const chatHistoryItems = document.querySelectorAll('.history-item');
 const suggestionChips = document.querySelectorAll('.suggestion-chip');
 const body = document.body;
 const userNameLabel = document.getElementById('userNameLabel');
+const userAvatarLetter = document.getElementById('userAvatarLetter');
+
 
 // App State
 let currentTheme = 'dark';
 let currentUser = {
-    name: 'Pranay Kumar',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'
+    name: 'Pranay Kumar'
 };
 
 // --- Auth Simulation ---
@@ -29,7 +30,9 @@ function simulateLogin() {
     if (name) {
         currentUser.name = name;
         userNameLabel.innerText = name;
+        userAvatarLetter.innerText = name.charAt(0).toUpperCase();
         body.classList.remove('is-logged-out');
+        sidebar.classList.add('collapsed'); // Collapse by default when logged in
         addMessage('bot', `Welcome back, ${name}! I'm AI Mitra. Your personal AI assistant is ready.`);
     }
 }
@@ -37,9 +40,21 @@ function simulateLogin() {
 function simulateLogout() {
     if (confirm("Are you sure you want to log out?")) {
         body.classList.add('is-logged-out');
+        sidebar.classList.remove('collapsed'); // Expand by default when logged out
         resetChat();
     }
 }
+
+// Sidebar manual toggle
+const globalSidebarToggle = document.getElementById('globalSidebarToggle');
+globalSidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    if (sidebar.classList.contains('collapsed')) {
+        globalSidebarToggle.title = "Expand menu";
+    } else {
+        globalSidebarToggle.title = "Collapse menu";
+    }
+});
 
 // --- Sidebar Interactivity ---
 
@@ -222,8 +237,4 @@ document.querySelector('.logout-btn').addEventListener('click', () => {
 
 document.querySelector('.footer-btn').addEventListener('click', () => {
     alert('Opening Settings...');
-});
-
-document.querySelector('.action-btn').addEventListener('click', () => {
-    alert('Sharing link generated!');
 });

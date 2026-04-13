@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mitra | Premium Chat Interface</title>
+    <meta name="description" content="A state-of-the-art AI chat interface with a premium dark mode design.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="is-logged-out">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <span>AI Mitra</span>
+                </div>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i data-lucide="plus"></i>
+                    <span>New Chat</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Logged In History -->
+                <div class="history-section logged-in-only">
+                    <div class="section-label">Recent Chats</div>
+                    <ul class="chat-history" id="chatHistory">
+                        <li class="history-item active" data-chat-id="1">
+                            <i data-lucide="message-square"></i>
+                            <span>Project Brainstorming</span>
+                        </li>
+                        <li class="history-item" data-chat-id="2">
+                            <i data-lucide="message-square"></i>
+                            <span>Web Design Inspiration</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Logged Out Promo -->
+                <div class="login-promo-card logged-out-only">
+                    <h3>Sign in to start saving your chats</h3>
+                    <p>Once you're signed in, you can access your recent chats here.</p>
+                    <button class="promo-signin-link" onclick="simulateLogin()">Sign in</button>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="footer-btn">
+                    <i data-lucide="help-circle"></i>
+                    <span>Settings and help</span>
+                </button>
+                
+                <div class="user-profile logged-in-only">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User Avatar" class="avatar" id="userAvatar">
+                    <div class="user-info">
+                        <span class="user-name" id="userNameLabel">Guest User</span>
+                        <span class="user-plan">Pro Plan</span>
+                    </div>
+                    <button class="logout-btn" title="Logout" onclick="simulateLogout()">
+                        <i data-lucide="log-out"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-container">
+            <header class="chat-header">
+                <button class="menu-toggle" id="menuToggle">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="model-selector">
+                    <span class="model-name">AI Mitra 2.0 Turbo</span>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn logged-in-only" title="Share">
+                        <i data-lucide="share-2"></i>
+                    </button>
+                    <button class="action-btn theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i data-lucide="moon"></i>
+                    </button>
+                    <button class="primary-signin-btn logged-out-only" onclick="simulateLogin()">Sign in</button>
+                </div>
+            </header>
+
+            <div class="messages-area" id="messagesArea">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-logo logged-in-only">
+                        <div class="logo-icon large"></div>
+                    </div>
+                    <h1 class="logged-in-only">How can I help you today?</h1>
+                    
+                    <!-- Landing Page Heading -->
+                    <div class="landing-heading logged-out-only">
+                        <h1>Meet AI Mitra, your personal AI assistant</h1>
+                    </div>
+
+                    <div class="suggestion-chips">
+                        <button class="suggestion-chip">Write a blog post about AI</button>
+                        <button class="suggestion-chip">Explain quantum computing</button>
+                        <button class="suggestion-chip">Help me debug some code</button>
+                        <button class="suggestion-chip">Plan a trip to Tokyo</button>
+                    </div>
+                </div>
+                <!-- Messages will be injected here -->
+            </div>
+
+            <footer class="input-area">
+                <div class="input-wrapper">
+                    <div class="input-actions-left">
+                        <button class="input-btn" title="Attach Files">
+                            <i data-lucide="paperclip"></i>
+                        </button>
+                    </div>
+                    <textarea id="chatInput" placeholder="Message AI Mitra..." rows="1"></textarea>
+                    <div class="input-actions-right">
+                        <button class="input-btn mic-btn" title="Voice Input">
+                            <i data-lucide="mic"></i>
+                        </button>
+                        <button class="send-btn" id="sendBtn" disabled>
+                            <i data-lucide="arrow-up"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="disclaimer">AI Mitra can make mistakes. Check important info.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

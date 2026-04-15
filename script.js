@@ -20,20 +20,25 @@ const userAvatarLetter = document.getElementById('userAvatarLetter');
 // App State
 let currentTheme = 'dark';
 let currentUser = {
-    name: 'Pranay Kumar'
+    name: 'User'
 };
 
 // --- Auth Simulation ---
 
 function simulateLogin() {
-    const name = prompt("Enter your name to sign in:", "Pranay Kumar");
+    const name = prompt("Enter your name to sign in:");
     if (name) {
         currentUser.name = name;
         userNameLabel.innerText = name;
         userAvatarLetter.innerText = name.charAt(0).toUpperCase();
+
+        const welcomeUserName = document.getElementById('welcomeUserName');
+        if (welcomeUserName) {
+            welcomeUserName.innerText = name;
+        }
+
         body.classList.remove('is-logged-out');
         sidebar.classList.add('collapsed'); // Collapse by default when logged in
-        addMessage('bot', `Welcome back, ${name}! I'm AI Mitra. Your personal AI assistant is ready.`);
     }
 }
 
@@ -59,13 +64,16 @@ globalSidebarToggle.addEventListener('click', () => {
 // --- Sidebar Interactivity ---
 
 // Toggle sidebar on mobile
-menuToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-});
+if (menuToggle) {
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+}
 
 // Close sidebar when clicking outside on mobile
 document.addEventListener('click', (e) => {
-    if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+    if (window.innerWidth <= 768 && !sidebar.contains(e.target)) {
+        if (menuToggle && menuToggle.contains(e.target)) return;
         sidebar.classList.remove('active');
     }
 });
@@ -75,14 +83,14 @@ chatHistoryItems.forEach(item => {
     item.addEventListener('click', () => {
         chatHistoryItems.forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        
+
         // Reset chat for demo purposes
         resetChat();
-        
+
         // Simulate loading old chat
         const chatTitle = item.querySelector('span').innerText;
         addMessage('bot', `Loading your conversation about "${chatTitle}"...`);
-        
+
         if (window.innerWidth <= 768) {
             sidebar.classList.remove('active');
         }
@@ -95,7 +103,7 @@ chatHistoryItems.forEach(item => {
 chatInput.addEventListener('input', () => {
     chatInput.style.height = 'auto';
     chatInput.style.height = (chatInput.scrollHeight) + 'px';
-    
+
     // Enable/Disable send button
     sendBtn.disabled = chatInput.value.trim() === '';
 });
@@ -114,9 +122,19 @@ function handleSendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
-    // Remove welcome screen if present
-    if (welcomeScreen) {
-        welcomeScreen.style.display = 'none';
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer && chatContainer.classList.contains('landing-mode')) {
+        chatContainer.classList.remove('landing-mode');
+        if (welcomeScreen) {
+            welcomeScreen.style.opacity = '0';
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+            }, 300);
+        }
+    } else {
+        if (welcomeScreen) {
+            welcomeScreen.style.display = 'none';
+        }
     }
 
     addMessage('user', text);
@@ -131,18 +149,18 @@ function handleSendMessage() {
 function addMessage(role, text) {
     const messageRow = document.createElement('div');
     messageRow.className = `message-row ${role}-row`;
-    
+
     const avatarIcon = role === 'user' ? 'U' : 'AI';
-    
+
     messageRow.innerHTML = `
         <div class="message-content">
             <div class="message-avatar">${avatarIcon}</div>
             <div class="message-text">${formatText(text)}</div>
         </div>
     `;
-    
+
     messagesArea.appendChild(messageRow);
-    
+
     // Scroll to bottom
     messagesArea.scrollTo({
         top: messagesArea.scrollHeight,
@@ -165,10 +183,10 @@ function simulateBotResponse(userMsg) {
 
     setTimeout(() => {
         messagesArea.removeChild(loadingRow);
-        
+
         let response = "";
         const lowerMsg = userMsg.toLowerCase();
-        
+
         if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
             response = "Hello! I'm AI Mitra. How can I assist you today with your projects or queries?";
         } else if (lowerMsg.includes('time')) {
@@ -178,7 +196,7 @@ function simulateBotResponse(userMsg) {
         } else {
             response = "That's an interesting topic! As an AI, I can help you explore that further. Would you like me to provide a detailed breakdown or just a summary?";
         }
-        
+
         addMessage('bot', response);
     }, 1500);
 }
@@ -186,7 +204,7 @@ function simulateBotResponse(userMsg) {
 function formatText(text) {
     // Simple formatting for demo (bold, etc)
     return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-               .replace(/\n/g, '<br>');
+        .replace(/\n/g, '<br>');
 }
 
 // --- Utilities ---
@@ -197,11 +215,20 @@ newChatBtn.addEventListener('click', resetChat);
 function resetChat() {
     messagesArea.innerHTML = '';
     messagesArea.appendChild(welcomeScreen);
-    welcomeScreen.style.display = 'block';
+
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) chatContainer.classList.add('landing-mode');
+
+    if (welcomeScreen) {
+        welcomeScreen.style.display = 'block';
+        // setTimeout ensures opacity transitions after display is set to block
+        setTimeout(() => welcomeScreen.style.opacity = '1', 50);
+    }
+
     chatInput.value = '';
     chatInput.style.height = 'auto';
     sendBtn.disabled = true;
-    
+
     if (window.innerWidth <= 768) {
         sidebar.classList.remove('active');
     }
@@ -210,14 +237,10 @@ function resetChat() {
 // Theme Toggle
 themeToggle.addEventListener('click', () => {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
     document.body.setAttribute('data-theme', currentTheme);
-    
-    const icon = themeToggle.querySelector('i');
-    if (currentTheme === 'light') {
-        icon.setAttribute('data-lucide', 'sun');
-    } else {
-        icon.setAttribute('data-lucide', 'moon');
-    }
+
+    themeToggle.innerHTML = currentTheme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
     lucide.createIcons();
 });
 
@@ -231,10 +254,6 @@ suggestionChips.forEach(chip => {
 });
 
 // Profile Actions (Demo)
-document.querySelector('.logout-btn').addEventListener('click', () => {
-    alert('Logging out of AI Mitra...');
-});
-
 document.querySelector('.footer-btn').addEventListener('click', () => {
     alert('Opening Settings...');
 });

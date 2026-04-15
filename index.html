@@ -13,7 +13,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="is-logged-out">
     <!-- Floating Menu Toggle -->
     <button class="global-menu-toggle" id="globalSidebarToggle" title="Collapse menu">
         <i data-lucide="menu"></i>
@@ -61,12 +61,12 @@
                     <span>Settings and help</span>
                 </button>
                 
-                <div class="user-profile logged-in-only">
+                <div class="user-profile logged-in-only" onclick="simulateLogout()" style="cursor: pointer;" title="Click to logout">
                     <div class="avatar-letter" id="userAvatarLetter">G</div>
                     <div class="user-info">
                         <span class="user-name" id="userNameLabel">Guest User</span>
                     </div>
-                    <button class="logout-btn" title="Logout" onclick="simulateLogout()">
+                    <button class="logout-btn" title="Logout">
                         <i data-lucide="log-out"></i>
                     </button>
                 </div>
@@ -74,7 +74,7 @@
         </aside>
 
         <!-- Main Chat Area -->
-        <main class="chat-container">
+        <main class="chat-container landing-mode">
             <header class="chat-header">
                 <div class="header-left">
                     <div class="logo">
@@ -94,12 +94,17 @@
                 </div>
             </header>
 
+            <div class="vertical-spacer top-spacer"></div>
+
             <div class="messages-area" id="messagesArea">
                 <div class="welcome-screen" id="welcomeScreen">
                     <div class="welcome-logo logged-in-only">
                         <div class="logo-icon large"></div>
                     </div>
-                    <h1 class="logged-in-only">How can I help you today?</h1>
+                    <div class="welcome-text-wrapper logged-in-only">
+                        <h2 class="greeting-user" id="welcomeGreeting">Hi <span id="welcomeUserName">User</span></h2>
+                        <h1>How can I help you today?</h1>
+                    </div>
                     
                     <!-- Landing Page Heading -->
                     <div class="landing-heading logged-out-only">
@@ -130,6 +135,8 @@
                 </div>
                 <p class="disclaimer">AI Mitra can make mistakes. Check important info.</p>
             </footer>
+
+            <div class="vertical-spacer bottom-spacer"></div>
         </main>
     </div>
 

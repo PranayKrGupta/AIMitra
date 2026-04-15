@@ -36,14 +36,6 @@
                 <div class="history-section logged-in-only">
                     <div class="section-label">Recent Chats</div>
                     <ul class="chat-history" id="chatHistory">
-                        <li class="history-item active" data-chat-id="1">
-                            <i data-lucide="message-square"></i>
-                            <span>Project Brainstorming</span>
-                        </li>
-                        <li class="history-item" data-chat-id="2">
-                            <i data-lucide="message-square"></i>
-                            <span>Web Design Inspiration</span>
-                        </li>
                     </ul>
                 </div>
 
@@ -56,20 +48,36 @@
             </div>
 
             <div class="sidebar-footer">
-                <button class="footer-btn">
-                    <i data-lucide="help-circle"></i>
-                    <span>Settings and help</span>
+                <button class="settings-gear-btn" id="settingsMenuBtn" title="Settings">
+                    <i data-lucide="settings"></i>
                 </button>
                 
-                <div class="user-profile logged-in-only" onclick="simulateLogout()" style="cursor: pointer;" title="Click to logout">
-                    <div class="avatar-letter" id="userAvatarLetter">G</div>
-                    <div class="user-info">
-                        <span class="user-name" id="userNameLabel">Guest User</span>
+                <div class="settings-dropdown" id="settingsDropdown">
+                    <div class="dropdown-item" id="profileDropdownItem">
+                        <i data-lucide="user"></i>
+                        <span>Profile</span>
                     </div>
-                    <button class="logout-btn" title="Logout">
+                    <div class="dropdown-item" onclick="simulateLogout()">
                         <i data-lucide="log-out"></i>
-                    </button>
+                        <span>Log out</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item">
+                        <i data-lucide="message-square"></i>
+                        <span>Feedback</span>
+                    </div>
+                    <div class="dropdown-item">
+                        <i data-lucide="help-circle"></i>
+                        <span>Help</span>
+                    </div>
+                    <div class="dropdown-item">
+                        <i data-lucide="info"></i>
+                        <span>About</span>
+                    </div>
                 </div>
+                <!-- Hidden elements to avoid JS errors -->
+                <span id="userNameLabel" style="display:none;">Guest User</span>
+                <span id="userAvatarLetter" style="display:none;">G</span>
             </div>
         </aside>
 

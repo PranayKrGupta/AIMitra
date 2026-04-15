@@ -78,24 +78,50 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// History item selection
-chatHistoryItems.forEach(item => {
-    item.addEventListener('click', () => {
-        chatHistoryItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
+let newChatCount = 0;
 
-        // Reset chat for demo purposes
+function addChatToHistory(title) {
+    const chatHistory = document.getElementById('chatHistory');
+    if (!chatHistory) return;
+    
+    const existingItems = chatHistory.querySelectorAll('.history-item');
+    existingItems.forEach(item => item.classList.remove('active'));
+
+    const li = document.createElement('li');
+    li.className = 'history-item active';
+    li.setAttribute('data-chat-id', 'new-' + newChatCount);
+    
+    li.innerHTML = `
+        <i data-lucide="message-square"></i>
+        <span>${title}</span>
+    `;
+
+    li.addEventListener('click', () => {
+        const items = chatHistory.querySelectorAll('.history-item');
+        items.forEach(i => i.classList.remove('active'));
+        li.classList.add('active');
+        
         resetChat();
+        
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+            chatContainer.classList.remove('landing-mode');
+        }
+        if (welcomeScreen) {
+            welcomeScreen.style.display = 'none';
+        }
 
-        // Simulate loading old chat
-        const chatTitle = item.querySelector('span').innerText;
-        addMessage('bot', `Loading your conversation about "${chatTitle}"...`);
-
+        addMessage('bot', `Loading your conversation about "${title}"...`);
         if (window.innerWidth <= 768) {
             sidebar.classList.remove('active');
         }
     });
-});
+
+    chatHistory.prepend(li);
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
 
 // --- Chat Interaction ---
 
@@ -122,8 +148,10 @@ function handleSendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
+    let isNewChat = false;
     const chatContainer = document.querySelector('.chat-container');
     if (chatContainer && chatContainer.classList.contains('landing-mode')) {
+        isNewChat = true;
         chatContainer.classList.remove('landing-mode');
         if (welcomeScreen) {
             welcomeScreen.style.opacity = '0';
@@ -135,6 +163,11 @@ function handleSendMessage() {
         if (welcomeScreen) {
             welcomeScreen.style.display = 'none';
         }
+    }
+
+    if (isNewChat) {
+        newChatCount++;
+        addChatToHistory(`New Chat #${newChatCount}`);
     }
 
     addMessage('user', text);
@@ -253,7 +286,26 @@ suggestionChips.forEach(chip => {
     });
 });
 
-// Profile Actions (Demo)
-document.querySelector('.footer-btn').addEventListener('click', () => {
-    alert('Opening Settings...');
-});
+// Settings Dropdown Toggle
+const settingsMenuBtn = document.getElementById('settingsMenuBtn');
+const settingsDropdown = document.getElementById('settingsDropdown');
+
+if (settingsMenuBtn && settingsDropdown) {
+    settingsMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsDropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!settingsDropdown.contains(e.target) && e.target !== settingsMenuBtn) {
+            settingsDropdown.classList.remove('active');
+        }
+    });
+
+    const dropdownItems = settingsDropdown.querySelectorAll('.dropdown-item:not([onclick])');
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', () => {
+            settingsDropdown.classList.remove('active');
+        });
+    });
+}

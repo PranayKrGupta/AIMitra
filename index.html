@@ -64,15 +64,15 @@
                         <span>Log out</span>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <div class="dropdown-item">
+                    <div class="dropdown-item" id="feedbackDropdownItem">
                         <i data-lucide="message-square"></i>
                         <span>Feedback</span>
                     </div>
-                    <div class="dropdown-item">
+                    <div class="dropdown-item" id="helpDropdownItem">
                         <i data-lucide="help-circle"></i>
                         <span>Help</span>
                     </div>
-                    <div class="dropdown-item">
+                    <div class="dropdown-item" id="aboutDropdownItem">
                         <i data-lucide="info"></i>
                         <span>About</span>
                     </div>
@@ -239,6 +239,29 @@
         </div>
     </div>
 
+    <!-- Feedback Modal -->
+    <div class="modal-overlay" id="feedbackModalOverlay">
+        <div class="profile-modal feedback-modal">
+            <div class="modal-header">
+                <h2>Send feedback to AI Mitra</h2>
+                <button class="close-modal-btn" id="closeFeedbackModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group feedback-input-group">
+                    <label for="feedbackTextarea">Describe your feedback (required)</label>
+                    <textarea id="feedbackTextarea" placeholder="Tell us what prompted this feedback..."></textarea>
+                </div>
+                <p class="modal-disclaimer muted-small">Please don't include any sensitive information <i data-lucide="help-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-left: 4px;"></i></p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn feedback-send-btn" id="feedbackSendBtn" disabled>Send</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
+

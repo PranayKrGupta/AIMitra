@@ -848,7 +848,7 @@ body:not(.is-logged-out) .logged-out-only {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
 }
 
 .modal-overlay.active {
@@ -1007,3 +1007,93 @@ body:not(.is-logged-out) .logged-out-only {
 .modal-btn.primary:hover {
     opacity: 0.9;
 }
+
+/* Feedback Modal Specifics */
+.feedback-modal {
+    max-width: 540px;
+    padding: 32px;
+}
+
+.feedback-modal .modal-header {
+    margin-bottom: 28px;
+}
+
+.feedback-modal .modal-header h2 {
+    font-size: 1.25rem;
+}
+
+.feedback-input-group {
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+    margin-bottom: 12px;
+}
+
+.feedback-input-group:focus-within {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.feedback-input-group label {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    margin-bottom: 12px;
+}
+
+#feedbackTextarea {
+    width: 100%;
+    min-height: 120px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-size: 1rem;
+    resize: none;
+    line-height: 1.5;
+    padding: 0;
+}
+
+#feedbackTextarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.muted-small {
+    margin: 8px 0 32px !important;
+    text-align: left !important;
+    font-size: 0.85rem !important;
+    color: var(--text-muted) !important;
+    display: flex;
+    align-items: center;
+}
+
+.feedback-send-btn {
+    width: 100%;
+    border-radius: 14px;
+    padding: 14px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feedback-send-btn:disabled {
+    background: #1c1c1e !important;
+    color: #4a4a4e !important;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.feedback-send-btn:not(:disabled) {
+    background: var(--accent-gradient) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.feedback-send-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+    opacity: 1 !important;
+}
+

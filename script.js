@@ -355,13 +355,23 @@ if (settingsMenuBtn && settingsDropdown) {
         }
     });
 
-    const dropdownItems = settingsDropdown.querySelectorAll('.dropdown-item:not([onclick])');
+    const dropdownItems = settingsDropdown.querySelectorAll('.dropdown-item:not([onclick]):not([id="profileDropdownItem"]):not([id="feedbackDropdownItem"]):not([id="helpDropdownItem"])');
     dropdownItems.forEach(item => {
         item.addEventListener('click', () => {
             settingsDropdown.classList.remove('active');
         });
     });
+
+    const helpDropdownItem = document.getElementById('helpDropdownItem');
+    if (helpDropdownItem) {
+        helpDropdownItem.addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.open(`help.html?theme=${theme}`, '_blank');
+            settingsDropdown.classList.remove('active');
+        });
+    }
 }
+
 
 // Profile Modal Logic
 const profileDropdownItem = document.getElementById('profileDropdownItem');
@@ -594,4 +604,70 @@ if (authModalOverlay) {
         });
     }
 }
+
+// --- Feedback Modal Logic ---
+const feedbackDropdownItem = document.getElementById('feedbackDropdownItem');
+const feedbackModalOverlay = document.getElementById('feedbackModalOverlay');
+const feedbackTextarea = document.getElementById('feedbackTextarea');
+const feedbackSendBtn = document.getElementById('feedbackSendBtn');
+const closeFeedbackModalBtn = document.getElementById('closeFeedbackModalBtn');
+
+if (feedbackDropdownItem && feedbackModalOverlay) {
+    feedbackDropdownItem.addEventListener('click', () => {
+        feedbackModalOverlay.classList.add('active');
+        if (settingsDropdown) settingsDropdown.classList.remove('active');
+        // Reset state
+        feedbackTextarea.value = '';
+        feedbackSendBtn.disabled = true;
+        setTimeout(() => feedbackTextarea.focus(), 300);
+    });
+
+    closeFeedbackModalBtn.addEventListener('click', () => {
+        feedbackModalOverlay.classList.remove('active');
+    });
+
+    feedbackModalOverlay.addEventListener('click', (e) => {
+        if (e.target === feedbackModalOverlay) {
+            feedbackModalOverlay.classList.remove('active');
+        }
+    });
+
+    feedbackTextarea.addEventListener('input', () => {
+        feedbackSendBtn.disabled = feedbackTextarea.value.trim() === '';
+    });
+
+    feedbackSendBtn.addEventListener('click', () => {
+        const feedback = feedbackTextarea.value.trim();
+        if (feedback) {
+            // Here you would typically send the feedback to a server
+            console.log('Feedback submitted:', feedback);
+            
+            // Show success state (optional but good for UX)
+            feedbackSendBtn.innerText = 'Sent!';
+            feedbackSendBtn.disabled = true;
+            
+            setTimeout(() => {
+                feedbackModalOverlay.classList.remove('active');
+                // Reset button text after modal closes
+                setTimeout(() => {
+                    feedbackSendBtn.innerText = 'Send';
+                    feedbackTextarea.value = '';
+                }, 300);
+            }, 1000);
+        }
+    });
+}
+
+// --- About Page Logic ---
+const aboutDropdownItem = document.getElementById('aboutDropdownItem');
+if (aboutDropdownItem) {
+    aboutDropdownItem.addEventListener('click', () => {
+        const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+        window.open(`about.html?theme=${theme}`, '_blank');
+        if (settingsDropdown) settingsDropdown.classList.remove('active');
+    });
+}
+
+
+
 

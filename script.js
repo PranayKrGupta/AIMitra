@@ -15,6 +15,7 @@ const suggestionChips = document.querySelectorAll('.suggestion-chip');
 const body = document.body;
 const userNameLabel = document.getElementById('userNameLabel');
 const userAvatarLetter = document.getElementById('userAvatarLetter');
+const micBtn = document.querySelector('.mic-btn');
 
 
 // App State
@@ -26,28 +27,34 @@ let currentUser = {
 // --- Auth Simulation ---
 
 function simulateLogin() {
-    const name = prompt("Enter your name to sign in:");
-    if (name) {
-        currentUser.name = name;
-        userNameLabel.innerText = name;
-        userAvatarLetter.innerText = name.charAt(0).toUpperCase();
-
-        const welcomeUserName = document.getElementById('welcomeUserName');
-        if (welcomeUserName) {
-            welcomeUserName.innerText = name;
+    const authModalOverlay = document.getElementById('authModalOverlay');
+    if (authModalOverlay) {
+        if (typeof setAuthMode === 'function') {
+            setAuthMode(false); // Defaults to Log in
         }
-
-        body.classList.remove('is-logged-out');
-        sidebar.classList.add('collapsed'); // Collapse by default when logged in
+        
+        authModalOverlay.classList.add('active');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 }
 
 function simulateLogout() {
-    if (confirm("Are you sure you want to log out?")) {
-        body.classList.add('is-logged-out');
-        sidebar.classList.remove('collapsed'); // Expand by default when logged out
-        resetChat();
+    const logoutModalOverlay = document.getElementById('logoutModalOverlay');
+    if (logoutModalOverlay) {
+        logoutModalOverlay.classList.add('active');
+        const settingsDropdown = document.getElementById('settingsDropdown');
+        if (settingsDropdown) settingsDropdown.classList.remove('active');
+    } else {
+        if (confirm("Are you sure you want to log out?")) {
+            processLogout();
+        }
     }
+}
+
+function processLogout() {
+    body.classList.add('is-logged-out');
+    sidebar.classList.remove('collapsed'); // Expand by default when logged out
+    resetChat();
 }
 
 // Sidebar manual toggle
@@ -124,6 +131,52 @@ function addChatToHistory(title) {
 }
 
 // --- Chat Interaction ---
+
+// Speech Recognition setup
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    micBtn.addEventListener('click', () => {
+        try {
+            recognition.start();
+            micBtn.style.color = '#ef4444'; // Red color to indicate listening
+            micBtn.title = 'Listening...';
+        } catch(e) {
+            console.log("Speech recognition is already running.");
+        }
+    });
+
+    recognition.addEventListener('result', (e) => {
+        const transcript = e.results[0][0].transcript;
+        const currentVal = chatInput.value;
+        chatInput.value = currentVal ? currentVal + ' ' + transcript : transcript;
+        chatInput.dispatchEvent(new Event('input')); // Trigger auto-grow and button enable
+        micBtn.style.color = '';
+        micBtn.title = 'Voice Input';
+    });
+
+    recognition.addEventListener('speechend', () => {
+        recognition.stop();
+        micBtn.style.color = '';
+        micBtn.title = 'Voice Input';
+    });
+
+    recognition.addEventListener('error', (e) => {
+        console.error('Speech recognition error:', e.error);
+        micBtn.style.color = '';
+        micBtn.title = 'Voice Input';
+        if (e.error !== 'no-speech' && e.error !== 'not-allowed') {
+            alert('Speech recognition error: ' + e.error);
+        }
+    });
+} else {
+    micBtn.addEventListener('click', () => {
+        alert("Your browser does not support Speech Recognition. Please try Chrome, Safari, or Edge.");
+    });
+}
 
 // Auto-grow textarea
 chatInput.addEventListener('input', () => {
@@ -309,3 +362,236 @@ if (settingsMenuBtn && settingsDropdown) {
         });
     });
 }
+
+// Profile Modal Logic
+const profileDropdownItem = document.getElementById('profileDropdownItem');
+const profileModalOverlay = document.getElementById('profileModalOverlay');
+const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+const saveProfileBtn = document.getElementById('saveProfileBtn');
+const displayNameInput = document.getElementById('displayNameInput');
+const usernameInput = document.getElementById('usernameInput');
+const globalModalAvatar = document.getElementById('modalAvatarLetter');
+const sideAvatarLetter = document.getElementById('userAvatarLetter');
+
+if (profileDropdownItem && profileModalOverlay) {
+    profileDropdownItem.addEventListener('click', () => {
+        // Only makes sense if logged in, but we handle logic:
+        displayNameInput.value = currentUser.name !== 'User' ? currentUser.name : '';
+        
+        let derivedUsername = '';
+        if (currentUser.email && currentUser.email.includes('@')) {
+            derivedUsername = currentUser.email.split('@')[0];
+        } else if (currentUser.name !== 'User') {
+            derivedUsername = currentUser.name.toLowerCase().replace(/\s/g, '');
+        }
+        
+        usernameInput.value = derivedUsername;
+        globalModalAvatar.innerText = currentUser.name.charAt(0).toUpperCase();
+
+        profileModalOverlay.classList.add('active');
+        if (settingsDropdown) settingsDropdown.classList.remove('active');
+    });
+
+    cancelProfileBtn.addEventListener('click', () => {
+        profileModalOverlay.classList.remove('active');
+    });
+
+    profileModalOverlay.addEventListener('click', (e) => {
+        if (e.target === profileModalOverlay) {
+            profileModalOverlay.classList.remove('active');
+        }
+    });
+
+    saveProfileBtn.addEventListener('click', () => {
+        if (displayNameInput.value.trim()) {
+            currentUser.name = displayNameInput.value.trim();
+            if (userNameLabel) userNameLabel.innerText = currentUser.name;
+            if (sideAvatarLetter) sideAvatarLetter.innerText = currentUser.name.charAt(0).toUpperCase();
+            
+            const welcomeUserName = document.getElementById('welcomeUserName');
+            if (welcomeUserName) {
+                welcomeUserName.innerText = currentUser.name;
+            }
+        }
+        profileModalOverlay.classList.remove('active');
+    });
+}
+
+// Logout Modal Logic
+const logoutModalOverlay = document.getElementById('logoutModalOverlay');
+const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+
+if (logoutModalOverlay) {
+    cancelLogoutBtn.addEventListener('click', () => {
+        logoutModalOverlay.classList.remove('active');
+    });
+
+    logoutModalOverlay.addEventListener('click', (e) => {
+        if (e.target === logoutModalOverlay) {
+            logoutModalOverlay.classList.remove('active');
+        }
+    });
+
+    confirmLogoutBtn.addEventListener('click', () => {
+        processLogout();
+        logoutModalOverlay.classList.remove('active');
+    });
+}
+
+// Auth Modal Logic
+const authModalOverlay = document.getElementById('authModalOverlay');
+const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
+const authSubmitBtn = document.getElementById('authSubmitBtn');
+const tabLogin = document.getElementById('tabLogin');
+const tabSignup = document.getElementById('tabSignup');
+const nameInputContainer = document.getElementById('nameInputContainer');
+
+const authNameInput = document.getElementById('authNameInput');
+const authEmailInput = document.getElementById('authEmailInput');
+const authPasswordInput = document.getElementById('authPasswordInput');
+
+const nameError = document.getElementById('nameError');
+const emailError = document.getElementById('emailError');
+const passwordError = document.getElementById('passwordError');
+
+let isSignupMode = false;
+
+function setAuthMode(signup) {
+    isSignupMode = signup;
+    // Clear errors
+    if(nameError) nameError.style.display = 'none';
+    if(emailError) emailError.style.display = 'none';
+    if(passwordError) passwordError.style.display = 'none';
+    if(authNameInput) authNameInput.parentElement.style.borderColor = '';
+    if(authEmailInput) authEmailInput.parentElement.style.borderColor = '';
+    if(authPasswordInput) authPasswordInput.parentElement.style.borderColor = '';
+
+    // Clear inputs
+    if(authNameInput) authNameInput.value = '';
+    if(authEmailInput) authEmailInput.value = '';
+    if(authPasswordInput) authPasswordInput.value = '';
+    
+    if (signup) {
+        tabSignup.style.background = 'var(--chat-bg)';
+        tabSignup.style.color = 'var(--text-main)';
+        tabSignup.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        
+        tabLogin.style.background = 'transparent';
+        tabLogin.style.color = 'var(--text-muted)';
+        tabLogin.style.boxShadow = 'none';
+        
+        nameInputContainer.style.display = 'flex';
+        authSubmitBtn.innerText = 'Sign up';
+    } else {
+        tabLogin.style.background = 'var(--chat-bg)';
+        tabLogin.style.color = 'var(--text-main)';
+        tabLogin.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        
+        tabSignup.style.background = 'transparent';
+        tabSignup.style.color = 'var(--text-muted)';
+        tabSignup.style.boxShadow = 'none';
+        
+        nameInputContainer.style.display = 'none';
+        authSubmitBtn.innerText = 'Log in';
+    }
+}
+
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePassword(pwd) {
+    // Requires at least one letter, one number, min 8 characters.
+    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&_.\-]{8,}$/.test(pwd);
+}
+
+function showError(element, inputEl, message) {
+    element.innerText = message;
+    element.style.display = 'block';
+    inputEl.parentElement.style.borderColor = '#ef4444';
+}
+
+function hideError(element, inputEl) {
+    element.style.display = 'none';
+    inputEl.parentElement.style.borderColor = '';
+}
+
+if (authModalOverlay) {
+    if (tabLogin) tabLogin.addEventListener('click', () => setAuthMode(false));
+    if (tabSignup) tabSignup.addEventListener('click', () => setAuthMode(true));
+
+    if (closeAuthModalBtn) {
+        closeAuthModalBtn.addEventListener('click', () => {
+            authModalOverlay.classList.remove('active');
+        });
+    }
+
+    authModalOverlay.addEventListener('click', (e) => {
+        if (e.target === authModalOverlay) {
+            authModalOverlay.classList.remove('active');
+        }
+    });
+
+    if (authSubmitBtn) {
+        authSubmitBtn.addEventListener('click', () => {
+            const name = authNameInput.value.trim();
+            const email = authEmailInput.value.trim();
+            const password = authPasswordInput.value;
+            
+            let isValid = true;
+            
+            hideError(nameError, authNameInput);
+            hideError(emailError, authEmailInput);
+            hideError(passwordError, authPasswordInput);
+
+            if (isSignupMode) {
+                if (!name) {
+                    showError(nameError, authNameInput, "Name is required");
+                    isValid = false;
+                }
+            }
+
+            if (!email) {
+                showError(emailError, authEmailInput, "Email is required");
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                showError(emailError, authEmailInput, "Please enter a valid email address");
+                isValid = false;
+            }
+
+            if (!password) {
+                showError(passwordError, authPasswordInput, "Password is required");
+                isValid = false;
+            } else if (isSignupMode && !validatePassword(password)) {
+                showError(passwordError, authPasswordInput, "Min 8 chars, must include letters and numbers");
+                isValid = false;
+            } else if (!isSignupMode && password.length < 1) {
+                showError(passwordError, authPasswordInput, "Password is required");
+                isValid = false;
+            }
+
+            if (isValid) {
+                const finalName = isSignupMode ? name : email.split('@')[0];
+
+                currentUser.name = finalName;
+                currentUser.email = email;
+                
+                if (userNameLabel) userNameLabel.innerText = finalName;
+                
+                const sideAvatarLetter = document.getElementById('userAvatarLetter');
+                if (sideAvatarLetter) sideAvatarLetter.innerText = finalName.charAt(0).toUpperCase();
+
+                const welcomeUserName = document.getElementById('welcomeUserName');
+                if (welcomeUserName) {
+                    welcomeUserName.innerText = finalName;
+                }
+
+                body.classList.remove('is-logged-out');
+                sidebar.classList.add('collapsed');
+                authModalOverlay.classList.remove('active');
+            }
+        });
+    }
+}
+

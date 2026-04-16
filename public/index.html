@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mitra | Premium Chat Interface</title>
+    <meta name="description" content="A state-of-the-art AI chat interface with a premium dark mode design.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="is-logged-out">
+    <!-- Floating Menu Toggle -->
+    <button class="global-menu-toggle" id="globalSidebarToggle" title="Collapse menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <!-- Spacing for fixed menu button -->
+                <div style="height: 40px;"></div>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i data-lucide="plus"></i>
+                    <span>New Chat</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Logged In History -->
+                <div class="history-section logged-in-only">
+                    <div class="section-label">Recent Chats</div>
+                    <ul class="chat-history" id="chatHistory">
+                    </ul>
+                </div>
+
+                <!-- Logged Out Promo -->
+                <div class="login-promo-card logged-out-only">
+                    <h3>Sign in to start saving your chats</h3>
+                    <p>Once you're signed in, you can access your recent chats here.</p>
+                    <button class="promo-signin-link" onclick="simulateLogin()">Login / Signup</button>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="settings-gear-btn" id="settingsMenuBtn" title="Settings">
+                    <i data-lucide="settings"></i>
+                </button>
+                
+                <div class="user-avatar logged-in-only" id="userAvatarLetter" style="width: 38px; height: 38px; border-radius: 10px; background: var(--accent-gradient, #3b82f6); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; cursor: default; margin-left: 2px;" title="User Profile">G</div>
+                
+                <div class="settings-dropdown" id="settingsDropdown">
+                    <div class="dropdown-item logged-in-only" id="profileDropdownItem">
+                        <i data-lucide="user"></i>
+                        <span>Profile <span id="userNameLabel" style="display:none;">Guest User</span></span>
+                    </div>
+                    <div class="dropdown-item logged-in-only" onclick="simulateLogout()">
+                        <i data-lucide="log-out"></i>
+                        <span>Log out</span>
+                    </div>
+                    <div class="dropdown-divider logged-in-only"></div>
+                    <div class="dropdown-item" id="feedbackDropdownItem">
+                        <i data-lucide="message-square"></i>
+                        <span>Feedback</span>
+                    </div>
+                    <div class="dropdown-item" id="helpDropdownItem">
+                        <i data-lucide="help-circle"></i>
+                        <span>Help</span>
+                    </div>
+                    <div class="dropdown-item" id="aboutDropdownItem">
+                        <i data-lucide="info"></i>
+                        <span>About</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-container landing-mode">
+            <header class="chat-header">
+                <div class="header-left">
+                    <div class="logo">
+                        <div class="logo-icon"></div>
+                        <span>AI Mitra</span>
+                    </div>
+                </div>
+                <div class="model-selector">
+                    <span class="model-name">AI Mitra 2.0 Turbo</span>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i data-lucide="moon"></i>
+                    </button>
+                    <button class="primary-signin-btn logged-out-only" onclick="simulateLogin()">Login / Signup</button>
+                </div>
+            </header>
+
+            <div class="vertical-spacer top-spacer"></div>
+
+            <div class="messages-area" id="messagesArea">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-logo logged-in-only">
+                        <div class="logo-icon large"></div>
+                    </div>
+                    <div class="welcome-text-wrapper logged-in-only">
+                        <h2 class="greeting-user" id="welcomeGreeting">Hi <span id="welcomeUserName">User</span></h2>
+                        <h1>How can I help you today?</h1>
+                    </div>
+                    
+                    <!-- Landing Page Heading -->
+                    <div class="landing-heading logged-out-only">
+                        <h1>Meet AI Mitra, your personal AI assistant</h1>
+                    </div>
+
+                    <div class="suggestion-chips">
+                        <button class="suggestion-chip">Write a blog post about AI</button>
+                        <button class="suggestion-chip">Explain quantum computing</button>
+                        <button class="suggestion-chip">Help me debug some code</button>
+                        <button class="suggestion-chip">Plan a trip to Tokyo</button>
+                    </div>
+                </div>
+                <!-- Messages will be injected here -->
+            </div>
+
+            <footer class="input-area">
+                <div class="input-wrapper">
+                    <textarea id="chatInput" placeholder="Message AI Mitra..." rows="1"></textarea>
+                    <div class="input-actions-right">
+                        <button class="input-btn mic-btn" title="Voice Input">
+                            <i data-lucide="mic"></i>
+                        </button>
+                        <button class="send-btn" id="sendBtn" disabled>
+                            <i data-lucide="arrow-up"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="disclaimer">AI Mitra can make mistakes. Check important info.</p>
+            </footer>
+
+            <div class="vertical-spacer bottom-spacer"></div>
+        </main>
+    </div>
+    <!-- Profile Edit Modal -->
+    <div class="modal-overlay" id="profileModalOverlay">
+        <div class="profile-modal">
+            <div class="modal-header">
+                <h2>Edit profile</h2>
+            </div>
+            <div class="modal-body">
+                <div class="modal-avatar-wrapper">
+                    <div class="modal-avatar" id="modalAvatarLetter">U</div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="displayNameInput">Display name</label>
+                    <input type="text" id="displayNameInput" placeholder="Enter display name">
+                </div>
+                
+                <div class="input-group">
+                    <label for="usernameInput">Username</label>
+                    <input type="text" id="usernameInput" placeholder="Enter username">
+                </div>
+                
+                <p class="modal-disclaimer">Your profile helps people recognize you. Your name and username are also used in the AI Mitra app.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="cancelProfileBtn">Cancel</button>
+                <button class="modal-btn primary" id="saveProfileBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal-overlay" id="logoutModalOverlay">
+        <div class="profile-modal logout-modal" style="max-width: 380px;">
+            <div class="modal-header">
+                <h2>Sign out</h2>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 10px 0 40px; line-height: 1.5;">
+                <p style="color: var(--text-main); font-size: 1rem;">Are you sure you want to log out of AI Mitra?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="cancelLogoutBtn">Cancel</button>
+                <button class="modal-btn primary" id="confirmLogoutBtn" style="background: #ef4444; color: white;">Log out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Sign in / Sign up) -->
+    <div class="modal-overlay" id="authModalOverlay">
+        <div class="profile-modal auth-modal" style="max-width: 400px; padding: 40px 32px; position: relative;">
+            <button class="close-modal-btn" id="closeAuthModalBtn" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
+                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+
+            <div class="modal-header" style="justify-content: center; margin-bottom: 32px;">
+                <div class="logo" style="justify-content: center;">
+                    <div class="logo-icon"></div>
+                    <span style="font-size: 1.5rem; color: var(--text-main); font-weight: 700;">AI Mitra</span>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="auth-tabs" style="display: flex; gap: 8px; margin-bottom: 24px; background: var(--surface-hover); padding: 4px; border-radius: 12px;">
+                    <button class="auth-tab active" id="tabLogin" style="flex: 1; padding: 10px; border: none; background: var(--chat-bg); color: var(--text-main); border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s;">Log in</button>
+                    <button class="auth-tab" id="tabSignup" style="flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Sign up</button>
+                </div>
+                
+                <div class="input-group" id="nameInputContainer" style="padding: 12px 14px; display: none;">
+                    <label for="authNameInput">Full Name</label>
+                    <input type="text" id="authNameInput" placeholder="John Doe">
+                    <span class="error-msg" id="nameError" style="color: #ef4444; font-size: 0.75rem; margin-top: 6px; display: none; font-weight: 500;"></span>
+                </div>
+                
+                <div class="input-group" style="margin-top: 16px; padding: 12px 14px;">
+                    <label for="authEmailInput">Email address</label>
+                    <input type="email" id="authEmailInput" placeholder="john@example.com">
+                    <span class="error-msg" id="emailError" style="color: #ef4444; font-size: 0.75rem; margin-top: 6px; display: none; font-weight: 500;"></span>
+                </div>
+                
+                <div class="input-group" style="margin-top: 16px; padding: 12px 14px;">
+                    <label for="authPasswordInput">Password</label>
+                    <input type="password" id="authPasswordInput" placeholder="••••••••">
+                    <span class="error-msg" id="passwordError" style="color: #ef4444; font-size: 0.75rem; margin-top: 6px; display: none; font-weight: 500;"></span>
+                </div>
+                
+                <button class="modal-btn primary" id="authSubmitBtn" style="width: 100%; margin-top: 24px; padding: 14px; font-size: 1rem; border-radius: 12px; font-weight: 600;">Log in</button>
+                
+                <p style="text-align: center; margin-top: 24px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                    By continuing, you agree to AI Mitra's <a href="#" style="color: var(--accent-primary); text-decoration: none;">Terms of Service</a> and <a href="#" style="color: var(--accent-primary); text-decoration: none;">Privacy Policy</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal-overlay" id="feedbackModalOverlay">
+        <div class="profile-modal feedback-modal">
+            <div class="modal-header">
+                <h2>Send feedback to AI Mitra</h2>
+                <button class="close-modal-btn" id="closeFeedbackModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group feedback-input-group">
+                    <label for="feedbackTextarea">Describe your feedback (required)</label>
+                    <textarea id="feedbackTextarea" placeholder="Tell us what prompted this feedback..."></textarea>
+                </div>
+                <p class="modal-disclaimer muted-small">Please don't include any sensitive information <i data-lucide="help-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-left: 4px;"></i></p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn feedback-send-btn" id="feedbackSendBtn" disabled>Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

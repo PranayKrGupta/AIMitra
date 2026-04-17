@@ -4,28 +4,24 @@ const mongoose = require('mongoose');
 const path = require('path');
 const { generateChatResponse } = require('./services/llmFallbackService');
 
+const cors = require('cors');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+const chatRoutes = require('./routes/chat');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Basic Chat API Route
-app.post('/api/chat', async (req, res) => {
-    try {
-        const { prompt } = req.body;
-        if (!prompt) {
-            return res.status(400).json({ error: 'Prompt is required' });
-        }
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/chat', chatRoutes);
 
-        const responseText = await generateChatResponse(prompt);
-        res.json({ response: responseText });
-    } catch (error) {
-        console.error('Server error during chat routing:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
 
 // Connect to MongoDB & Start Server
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/aimitra')

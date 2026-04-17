@@ -1,0 +1,99 @@
+:root {
+    /* Color Palette */
+    --bg-dark: #0a0a0c;
+    --sidebar-bg: #111114;
+    --chat-bg: #0d0d0f;
+    --accent-primary: #6366f1;
+    --accent-secondary: #a855f7;
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --bubble-user: #2d2d33;
+    --bubble-bot: transparent;
+    --surface-hover: rgba(255, 255, 255, 0.05);
+    
+    /* Effects */
+    --glass-bg: rgba(17, 17, 20, 0.7);
+    --glass-blur: blur(12px);
+    --shadow-main: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    
+    /* Layout */
+    --sidebar-width: 280px;
+    --header-height: 64px;
+    --transition-speed: 0.3s;
+}
+
+[data-theme="light"] {
+    --bg-dark: #f8fafc;
+    --sidebar-bg: #f1f5f9;
+    --chat-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --bubble-user: #e2e8f0;
+    --surface-hover: rgba(0, 0, 0, 0.03);
+    --glass-bg: rgba(241, 245, 249, 0.7);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* Auth Visibility Logic */
+.is-logged-out .logged-in-only {
+    display: none !important;
+}
+
+body:not(.is-logged-out) .logged-out-only {
+    display: none !important;
+}
+
+.global-menu-toggle {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1001; /* Above sidebar */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.global-menu-toggle:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Scrollbar global utility */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}

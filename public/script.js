@@ -20,19 +20,110 @@ const micBtn = document.querySelector('.mic-btn');
 
 // App State
 let currentTheme = 'dark';
-let currentUser = {
-    name: 'User'
-};
+let currentUser = { name: 'User', id: null };
+let authToken = localStorage.getItem('token');
+let currentConversationId = null;
 
-// --- Auth Simulation ---
+// Initialization on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (authToken) {
+        fetchProfile();
+        fetchChatHistory();
+    }
+});
+
+// --- Auth Architecture ---
+
+async function fetchProfile() {
+    try {
+        const res = await fetch('/api/user/profile', {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (res.ok) {
+            const user = await res.json();
+            currentUser.name = user.displayName || user.fullName;
+            currentUser.id = user._id;
+            
+            // Update UI
+            body.classList.remove('is-logged-out');
+            sidebar.classList.add('collapsed');
+            if (userNameLabel) userNameLabel.innerText = currentUser.name;
+            const sideAvatarLetter = document.getElementById('userAvatarLetter');
+            if (sideAvatarLetter) sideAvatarLetter.innerText = currentUser.name.charAt(0).toUpperCase();
+            
+            const welcomeUserName = document.getElementById('welcomeUserName');
+            if (welcomeUserName) {
+                welcomeUserName.innerText = currentUser.name;
+            }
+        } else {
+            // Token likely expired
+            processLogout();
+        }
+    } catch (e) {
+        console.error("Profile fetch failed", e);
+    }
+}
+
+async function fetchChatHistory() {
+    try {
+        const res = await fetch('/api/chat/history', {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (res.ok) {
+            const history = await res.json();
+            const chatHistory = document.getElementById('chatHistory');
+            if (chatHistory) {
+                chatHistory.innerHTML = ''; // Clear default mock chats
+                history.forEach(convo => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.setAttribute('data-chat-id', convo._id);
+                    li.innerHTML = `<i data-lucide="message-square"></i><span>${convo.title}</span>`;
+                    li.addEventListener('click', () => loadConversation(convo._id, convo.title, li));
+                    chatHistory.appendChild(li);
+                });
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+    } catch (e) {
+        console.error("History fetch failed", e);
+    }
+}
+
+async function loadConversation(id, title, liElement) {
+    currentConversationId = id;
+    
+    // UI Updates
+    const items = document.querySelectorAll('.history-item');
+    items.forEach(i => i.classList.remove('active'));
+    if (liElement) liElement.classList.add('active');
+    
+    messagesArea.innerHTML = '';
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) chatContainer.classList.remove('landing-mode');
+    if (welcomeScreen) welcomeScreen.style.display = 'none';
+    if (window.innerWidth <= 768) sidebar.classList.remove('active');
+
+    // Fetch messages
+    try {
+        const res = await fetch(`/api/chat/${id}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (res.ok) {
+            const messages = await res.json();
+            messages.forEach(msg => {
+                addMessage(msg.role, msg.content);
+            });
+        }
+    } catch (e) {
+        console.error("Failed to load conversation", e);
+    }
+}
 
 function simulateLogin() {
     const authModalOverlay = document.getElementById('authModalOverlay');
     if (authModalOverlay) {
-        if (typeof setAuthMode === 'function') {
-            setAuthMode(false); // Defaults to Log in
-        }
-        
+        if (typeof setAuthMode === 'function') setAuthMode(false);
         authModalOverlay.classList.add('active');
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
@@ -52,8 +143,13 @@ function simulateLogout() {
 }
 
 function processLogout() {
+    localStorage.removeItem('token');
+    authToken = null;
+    currentConversationId = null;
+    currentUser = { name: 'User', id: null };
     body.classList.add('is-logged-out');
-    sidebar.classList.remove('collapsed'); // Expand by default when logged out
+    sidebar.classList.remove('collapsed');
+    document.getElementById('chatHistory').innerHTML = ''; // clear history on logout
     resetChat();
 }
 
@@ -168,7 +264,10 @@ if (SpeechRecognition) {
         console.error('Speech recognition error:', e.error);
         micBtn.style.color = '';
         micBtn.title = 'Voice Input';
-        if (e.error !== 'no-speech' && e.error !== 'not-allowed') {
+        
+        if (e.error === 'network') {
+            alert('Voice Input Failed: Your browser cannot connect to its translation servers. If you are using Brave, Opera, or a strict ad-blocker, try using Google Chrome or Edge. Also ensure your internet connection is active.');
+        } else if (e.error !== 'no-speech' && e.error !== 'not-allowed') {
             alert('Speech recognition error: ' + e.error);
         }
     });
@@ -219,8 +318,8 @@ function handleSendMessage() {
     }
 
     if (isNewChat) {
-        newChatCount++;
-        addChatToHistory(`New Chat #${newChatCount}`);
+        // We no longer mock addChatToHistory here.
+        // It will be handled when /api/chat returns a conversationId.
     }
 
     addMessage('user', text);
@@ -271,9 +370,10 @@ async function simulateBotResponse(userMsg) {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...(authToken && { 'Authorization': `Bearer ${authToken}` })
             },
-            body: JSON.stringify({ prompt: userMsg })
+            body: JSON.stringify({ prompt: userMsg, conversationId: currentConversationId })
         });
         
         const data = await response.json();
@@ -281,6 +381,12 @@ async function simulateBotResponse(userMsg) {
         messagesArea.removeChild(loadingRow);
 
         if (response.ok) {
+            // If new chat, the backend generated an ID for us
+            if (!currentConversationId && data.conversationId) {
+                currentConversationId = data.conversationId;
+                // Refresh history so the new chat shows up in the sidebar
+                if(authToken) fetchChatHistory(); 
+            }
             addMessage('bot', data.response);
         } else {
             console.error('API Error:', data);
@@ -305,6 +411,7 @@ function formatText(text) {
 newChatBtn.addEventListener('click', resetChat);
 
 function resetChat() {
+    currentConversationId = null;
     messagesArea.innerHTML = '';
     messagesArea.appendChild(welcomeScreen);
 
@@ -418,19 +525,83 @@ if (profileDropdownItem && profileModalOverlay) {
         }
     });
 
-    saveProfileBtn.addEventListener('click', () => {
-        if (displayNameInput.value.trim()) {
-            currentUser.name = displayNameInput.value.trim();
-            if (userNameLabel) userNameLabel.innerText = currentUser.name;
-            if (sideAvatarLetter) sideAvatarLetter.innerText = currentUser.name.charAt(0).toUpperCase();
+    saveProfileBtn.addEventListener('click', async () => {
+        const newName = displayNameInput.value.trim();
+        const newUsername = usernameInput.value.trim();
+        
+        saveProfileBtn.disabled = true;
+        saveProfileBtn.innerText = 'Saving...';
+        
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ fullName: newName, username: newUsername })
+            });
             
-            const welcomeUserName = document.getElementById('welcomeUserName');
-            if (welcomeUserName) {
-                welcomeUserName.innerText = currentUser.name;
+            if (res.ok) {
+                const user = await res.json();
+                currentUser.name = user.fullName;
+                
+                if (userNameLabel) userNameLabel.innerText = currentUser.name;
+                if (sideAvatarLetter) sideAvatarLetter.innerText = currentUser.name.charAt(0).toUpperCase();
+                
+                const welcomeUserName = document.getElementById('welcomeUserName');
+                if (welcomeUserName) {
+                    welcomeUserName.innerText = currentUser.name;
+                }
+                
+                profileModalOverlay.classList.remove('active');
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to preserve profile details');
             }
+        } catch (error) {
+            console.error(error);
+            alert('A network error occurred.');
+        } finally {
+            saveProfileBtn.disabled = false;
+            saveProfileBtn.innerText = 'Save';
         }
-        profileModalOverlay.classList.remove('active');
     });
+
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', async () => {
+            const confirmDelete = confirm('Are you sure you want to permanently delete your account? This action cannot be undone and will erase all your chat history.');
+            if (!confirmDelete) return;
+
+            deleteAccountBtn.disabled = true;
+            deleteAccountBtn.innerText = 'Deleting...';
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (res.ok) {
+                    alert('Your account has been successfully deleted.');
+                    profileModalOverlay.classList.remove('active');
+                    processLogout(); 
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to delete account');
+                }
+            } catch (error) {
+                console.error('Delete error', error);
+                alert('A network error occurred while attempting to delete your account.');
+            } finally {
+                deleteAccountBtn.disabled = false;
+                deleteAccountBtn.innerText = 'Delete Account';
+            }
+        });
+    }
 }
 
 // Logout Modal Logic
@@ -589,24 +760,57 @@ if (authModalOverlay) {
             }
 
             if (isValid) {
-                const finalName = isSignupMode ? name : email.split('@')[0];
-
-                currentUser.name = finalName;
-                currentUser.email = email;
+                const endpoint = isSignupMode ? '/api/auth/signup' : '/api/auth/login';
+                const payload = isSignupMode 
+                    ? { fullName: name, email, password }
+                    : { email, password };
                 
-                if (userNameLabel) userNameLabel.innerText = finalName;
+                authSubmitBtn.disabled = true;
+                authSubmitBtn.innerText = 'Loading...';
                 
-                const sideAvatarLetter = document.getElementById('userAvatarLetter');
-                if (sideAvatarLetter) sideAvatarLetter.innerText = finalName.charAt(0).toUpperCase();
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json().then(data => ({ status: res.status, ok: res.ok, body: data })))
+                .then(res => {
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerText = isSignupMode ? 'Sign up' : 'Log in';
+                    
+                    if (res.ok) {
+                        // Success!
+                        authToken = res.body.token;
+                        localStorage.setItem('token', authToken);
+                        
+                        currentUser.name = res.body.user.displayName || res.body.user.fullName;
+                        currentUser.id = res.body.user.id;
+                        
+                        if (userNameLabel) userNameLabel.innerText = currentUser.name;
+                        const sideAvatarLetter = document.getElementById('userAvatarLetter');
+                        if (sideAvatarLetter) sideAvatarLetter.innerText = currentUser.name.charAt(0).toUpperCase();
 
-                const welcomeUserName = document.getElementById('welcomeUserName');
-                if (welcomeUserName) {
-                    welcomeUserName.innerText = finalName;
-                }
+                        const welcomeUserName = document.getElementById('welcomeUserName');
+                        if (welcomeUserName) {
+                            welcomeUserName.innerText = currentUser.name;
+                        }
 
-                body.classList.remove('is-logged-out');
-                sidebar.classList.add('collapsed');
-                authModalOverlay.classList.remove('active');
+                        body.classList.remove('is-logged-out');
+                        sidebar.classList.add('collapsed');
+                        authModalOverlay.classList.remove('active');
+                        
+                        fetchChatHistory(); // Load their saved chats!
+                    } else {
+                        // Error handles
+                        showError(emailError, authEmailInput, res.body.error || 'Authentication failed');
+                    }
+                })
+                .catch(err => {
+                    console.error('Auth error', err);
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerText = isSignupMode ? 'Sign up' : 'Log in';
+                    showError(emailError, authEmailInput, 'Server connection error');
+                });
             }
         });
     }

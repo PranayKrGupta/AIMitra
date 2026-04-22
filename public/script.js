@@ -1082,6 +1082,11 @@ if (profileDropdownItem && profileModalOverlay) {
         }
         // Populate with current user details
         displayNameInput.value = currentUser.name;
+        
+        const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+        if (profileEmailDisplay) {
+            profileEmailDisplay.innerText = currentUser.email || '';
+        }
 
         // Extract username from email (first part before @)
         let derivedUsername = '';
@@ -1762,6 +1767,13 @@ if (authModalOverlay) {
         const feedbackSuccessMessage = document.getElementById('feedbackSuccessMessage');
 
         feedbackDropdownItem.addEventListener('click', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                if (settingsDropdown) settingsDropdown.classList.remove('active');
+                openAuthModal(false);
+                return;
+            }
+
             feedbackModalOverlay.classList.add('active');
             if (settingsDropdown) settingsDropdown.classList.remove('active');
             
@@ -1805,11 +1817,32 @@ if (authModalOverlay) {
 
         feedbackTextarea.addEventListener('input', updateSendButtonState);
 
-        feedbackSendBtn.addEventListener('click', () => {
+        feedbackSendBtn.addEventListener('click', async () => {
             const feedbackText = feedbackTextarea.value.trim();
             if (feedbackText && currentRating > 0) {
-                // Determine Success Message based on rating
-                let title = "Thank you!";
+                const token = localStorage.getItem('token');
+                try {
+                    // Send to backend
+                    const res = await fetch('/api/user/feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            rating: currentRating,
+                            text: feedbackText
+                        })
+                    });
+
+                    if (!res.ok) {
+                        console.error('Failed to submit feedback');
+                        showToast('Failed to submit feedback', 'x');
+                        return;
+                    }
+
+                    // Determine Success Message based on rating
+                    let title = "Thank you!";
                 let message = "We appreciate your feedback and will use it to make AI Mitra better.";
 
                 if (currentRating === 5) {
@@ -1832,6 +1865,10 @@ if (authModalOverlay) {
                 
                 // Finalize Lucide icons in second view
                 if (typeof lucide !== 'undefined') lucide.createIcons();
+                } catch (error) {
+                    console.error('Feedback error:', error);
+                    showToast('An error occurred', 'x');
+                }
             }
         });
 

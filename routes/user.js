@@ -73,4 +73,50 @@ router.delete('/profile', requireAuth, async (req, res) => {
     }
 });
 
+// POST /api/user/feedback
+router.post('/feedback', requireAuth, async (req, res) => {
+    try {
+        const { rating, text } = req.body;
+        if (!rating || !text) {
+            return res.status(400).json({ error: 'Rating and text are required' });
+        }
+
+        const Feedback = require('../models/Feedback');
+        const newFeedback = new Feedback({
+            user: req.user.userId,
+            rating,
+            text
+        });
+
+        await newFeedback.save();
+        res.status(201).json({ message: 'Feedback submitted successfully' });
+    } catch (error) {
+        console.error('Feedback submission error:', error);
+        res.status(500).json({ error: 'Failed to submit feedback' });
+    }
+});
+
+// PUT /api/user/update-password
+router.put('/update-password', requireAuth, async (req, res) => {
+    try {
+        const { password } = req.body;
+        if (!password) {
+            return res.status(400).json({ error: 'New password is required' });
+        }
+
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.password = password;
+        await user.save(); // This will trigger any pre-save hooks to hash the password
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+        console.error('Update password error:', error);
+        res.status(500).json({ error: 'Failed to update password' });
+    }
+});
+
 module.exports = router;

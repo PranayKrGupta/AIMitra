@@ -183,8 +183,11 @@
                 <h2>Edit profile</h2>
             </div>
             <div class="modal-body">
-                <div class="modal-avatar-wrapper">
+                <div class="modal-avatar-wrapper" style="margin-bottom: 12px;">
                     <div class="modal-avatar" id="modalAvatarLetter">U</div>
+                </div>
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <span id="profileEmailDisplay" style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;"></span>
                 </div>
                 
                 <div class="input-group">
@@ -195,6 +198,10 @@
                 <div class="input-group">
                     <label for="usernameInput">Username</label>
                     <input type="text" id="usernameInput" placeholder="Enter username">
+                </div>
+
+                <div style="text-align: right; margin-top: 8px; margin-bottom: 20px;">
+                    <a href="/reset-password.html" id="updatePasswordLink" style="color: var(--accent-primary); font-size: 0.85rem; text-decoration: none; font-weight: 500; transition: opacity 0.2s;">Update password</a>
                 </div>
                 
                 <p class="modal-disclaimer">Your profile helps people recognize you. Your name and username are also used in the AI Mitra app.</p>

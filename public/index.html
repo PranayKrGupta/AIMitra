@@ -140,13 +140,33 @@
                             <i data-lucide="chevron-down" class="dropdown-icon"></i>
                         </div>
                         <div class="model-selector-dropdown" id="modelSelectorDropdown">
-                            <div class="model-option active" data-value="gemini" data-icon="zap">
+                            <div class="dropdown-category">Gemini (Google)</div>
+                            <div class="model-option active" data-value="gemini-2.5-flash" data-icon="zap">
                                 <i data-lucide="zap"></i>
-                                <span>Gemini</span>
+                                <span>Gemini 2.5 Flash</span>
                             </div>
-                            <div class="model-option" data-value="cohere" data-icon="cpu">
+                            <div class="model-option" data-value="gemini-2.0-flash" data-icon="zap">
+                                <i data-lucide="zap"></i>
+                                <span>Gemini 2.0 Flash</span>
+                            </div>
+                            <div class="model-option" data-value="gemini-2.5-pro" data-icon="sparkles">
+                                <i data-lucide="sparkles"></i>
+                                <span>Gemini 2.5 Pro</span>
+                            </div>
+                            
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-category">Cohere</div>
+                            <div class="model-option" data-value="command-r" data-icon="cpu">
                                 <i data-lucide="cpu"></i>
-                                <span>Cohere</span>
+                                <span>Command R</span>
+                            </div>
+                            <div class="model-option" data-value="command" data-icon="cpu">
+                                <i data-lucide="cpu"></i>
+                                <span>Command</span>
+                            </div>
+                            <div class="model-option" data-value="command-light" data-icon="cpu">
+                                <i data-lucide="cpu"></i>
+                                <span>Command Light</span>
                             </div>
                         </div>
                         <input type="hidden" id="chatModelSelect" value="gemini">

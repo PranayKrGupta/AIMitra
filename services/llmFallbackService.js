@@ -35,20 +35,23 @@ async function generateChatResponse(prompt, requestedModel = 'auto') {
         return { text: chatCompletion.choices[0]?.message?.content || '', provider: 'Groq' };
     };
 
-    const runGemini = async () => {
+    const runGemini = async (modelName = "gemini-2.5-flash") => {
         if (!genAI) throw new Error("Gemini API key missing or invalid");
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: modelName });
         const result = await model.generateContent({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
         });
         const response = await result.response;
-        return { text: response.text() || '', provider: 'Gemini' };
+        return { text: response.text() || '', provider: `Gemini (${modelName})` };
     };
 
-    const runCohere = async () => {
+    const runCohere = async (modelName = "command-r") => {
         if (!cohere) throw new Error("Cohere API key missing or invalid");
-        const response = await cohere.chat({ message: prompt });
-        return { text: response.text || '', provider: 'Cohere' };
+        const response = await cohere.chat({ 
+            message: prompt,
+            model: modelName
+        });
+        return { text: response.text || '', provider: `Cohere (${modelName})` };
     };
 
     const runHF = async () => {
@@ -66,24 +69,24 @@ async function generateChatResponse(prompt, requestedModel = 'auto') {
     };
 
     try {
-        if (requestedModel === 'gemini') {
+        if (requestedModel.startsWith('gemini')) {
             try {
-                const res = await runGemini();
+                const res = await runGemini(requestedModel);
                 finalResponse = res.text; providerUsed = res.provider;
             } catch (e) {
-                console.warn(`[${new Date().toISOString()}] Gemini Quota/Error, falling back to Cohere.`, e.message);
+                console.warn(`[${new Date().toISOString()}] ${requestedModel} failed, falling back to Cohere.`, e.message);
                 fallbackTriggered = true;
-                const res = await runCohere();
+                const res = await runCohere("command-r");
                 finalResponse = res.text; providerUsed = res.provider;
             }
-        } else if (requestedModel === 'cohere') {
+        } else if (requestedModel.startsWith('command')) {
             try {
-                const res = await runCohere();
+                const res = await runCohere(requestedModel);
                 finalResponse = res.text; providerUsed = res.provider;
             } catch (e) {
-                console.warn(`[${new Date().toISOString()}] Cohere Quota/Error, falling back to Gemini.`, e.message);
+                console.warn(`[${new Date().toISOString()}] ${requestedModel} failed, falling back to Gemini.`, e.message);
                 fallbackTriggered = true;
-                const res = await runGemini();
+                const res = await runGemini("gemini-2.5-flash");
                 finalResponse = res.text; providerUsed = res.provider;
             }
         } else {

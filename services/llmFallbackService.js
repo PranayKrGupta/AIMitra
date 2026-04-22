@@ -1,141 +1,176 @@
 require('dotenv').config();
-const Groq = require('groq-sdk');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { CohereClient } = require('cohere-ai');
+const Groq = require('groq-sdk');
 const { HfInference } = require('@huggingface/inference');
-
 const ChatLog = require('../models/ChatLog');
 
 // Initialize API Clients
-const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 const cohere = process.env.COHERE_API_KEY ? new CohereClient({ token: process.env.COHERE_API_KEY }) : null;
+const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 const hf = process.env.HUGGINGFACE_API_KEY ? new HfInference(process.env.HUGGINGFACE_API_KEY) : null;
 
+// Circuit Breaker State
+const providerStatus = {}; 
+const FAILURE_COOLDOWN = 60000; // Skip failed models for 60 seconds
+
 /**
- * Generates a chat response using a cascading fallback mechanism.
- * Tries Groq -> Gemini -> Cohere -> Hugging Face.
- * Logs the interaction to MongoDB.
- * 
- * @param {string} prompt - The user's input prompt.
- * @returns {Promise<string>} The generated response text.
+ * Helper to run a promise with a timeout
+ */
+async function withTimeout(promise, ms, label) {
+    const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Timeout: ${label} exceeded ${ms}ms`)), ms)
+    );
+    return Promise.race([promise, timeout]);
+}
+
+/**
+ * Generates a chat response using a cost-effective, rate-limit-conscious tiered fallback.
  */
 async function generateChatResponse(prompt, requestedModel = 'auto') {
     let finalResponse = '';
     let providerUsed = 'None';
     let fallbackTriggered = false;
+    const startTime = Date.now();
 
-    // Helper functions for each API
-    const runGroq = async () => {
-        if (!groq) throw new Error("Groq API key missing or invalid");
-        const chatCompletion = await groq.chat.completions.create({
-            messages: [{ role: 'user', content: prompt }],
-            model: 'llama3-8b-8192',
-        });
-        return { text: chatCompletion.choices[0]?.message?.content || '', provider: 'Groq' };
-    };
-
-    const runGemini = async (modelName = "gemini-2.5-flash") => {
-        if (!genAI) throw new Error("Gemini API key missing or invalid");
+    // Provider Helpers
+    const runGemini = async (modelName, timeoutMs) => {
+        if (!genAI) throw new Error("Gemini API key missing");
         const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent({
+        const result = await withTimeout(model.generateContent({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        });
+        }), timeoutMs, `Gemini ${modelName}`);
         const response = await result.response;
         return { text: response.text() || '', provider: `Gemini (${modelName})` };
     };
 
-    const runCohere = async (modelName = "command-r") => {
-        if (!cohere) throw new Error("Cohere API key missing or invalid");
-        const response = await cohere.chat({ 
+    const runCohere = async (modelName, timeoutMs) => {
+        if (!cohere) throw new Error("Cohere API key missing");
+        const response = await withTimeout(cohere.chat({
             message: prompt,
             model: modelName
-        });
+        }), timeoutMs, `Cohere ${modelName}`);
         return { text: response.text || '', provider: `Cohere (${modelName})` };
     };
 
-    const runHF = async () => {
-        if (!hf) throw new Error("Hugging Face API key missing or invalid");
-        const response = await hf.textGeneration({
-            model: 'HuggingFaceH4/zephyr-7b-beta',
+    const runGroq = async (modelName, timeoutMs) => {
+        if (!groq) throw new Error("Groq API key missing");
+        const result = await withTimeout(groq.chat.completions.create({
+            messages: [{ role: 'user', content: prompt }],
+            model: modelName,
+        }), timeoutMs, `Groq ${modelName}`);
+        return { text: result.choices[0]?.message?.content || '', provider: `Groq (${modelName})` };
+    };
+
+    const runHF = async (modelName, timeoutMs) => {
+        if (!hf) throw new Error("Hugging Face API key missing");
+        const result = await withTimeout(hf.textGeneration({
+            model: modelName,
             inputs: prompt,
-            parameters: { max_new_tokens: 300 }
-        });
-        let generatedText = response.generated_text || '';
+            parameters: { max_new_tokens: 500 }
+        }), timeoutMs, `HF ${modelName}`);
+        let generatedText = result.generated_text || '';
         if (generatedText.startsWith(prompt)) {
             generatedText = generatedText.substring(prompt.length).trim();
         }
-        return { text: generatedText, provider: 'Hugging Face' };
+        return { text: generatedText, provider: `HuggingFace (${modelName})` };
     };
 
-    try {
-        if (requestedModel.startsWith('gemini')) {
-            try {
-                const res = await runGemini(requestedModel);
-                finalResponse = res.text; providerUsed = res.provider;
-            } catch (e) {
-                console.warn(`[${new Date().toISOString()}] ${requestedModel} failed, falling back to Cohere.`, e.message);
+    // Tiers with Balanced Timeouts (Lighter = faster, Heavier = more patient)
+    const tiers = [
+        { name: 'gemini-2.5-flash', type: 'gemini', timeout: 15000 },
+        { name: 'gemini-2.0-flash', type: 'gemini', timeout: 15000 },
+        { name: 'command-r7b-12-2024', type: 'cohere', timeout: 20000 },
+        { name: 'command-r-08-2024', type: 'cohere', timeout: 35000 },
+        { name: 'command-r-plus-08-2024', type: 'cohere', timeout: 45000 },
+        { name: 'llama3-8b-8192', type: 'groq', timeout: 15000 },
+        { name: 'gemini-2.5-pro', type: 'gemini', timeout: 50000 }
+    ];
+
+    const modelMapping = {
+        'gemini-2.5-flash': 'gemini-2.5-flash',
+        'gemini-2.0-flash': 'gemini-2.0-flash',
+        'gemini-2.5-pro': 'gemini-2.5-pro',
+        'command-r': 'command-r-08-2024',
+        'command-r-plus': 'command-r-plus-08-2024',
+        'command-r7b': 'command-r7b-12-2024'
+    };
+
+    let executionQueue = [...tiers];
+    const isAuto = requestedModel === 'auto';
+    
+    if (!isAuto) {
+        const targetModel = modelMapping[requestedModel] || requestedModel;
+        const index = executionQueue.findIndex(t => t.name === targetModel);
+        if (index > -1) {
+            const requested = executionQueue.splice(index, 1)[0];
+            // Boost the timeout if explicitly requested by user
+            requested.timeout = Math.max(requested.timeout, 40000); 
+            executionQueue.unshift(requested);
+        }
+    }
+
+    const now = Date.now();
+    const availableQueue = executionQueue.filter(tier => {
+        const status = providerStatus[tier.name];
+        // Only skip if it was a hard error (429/503), not just a timeout
+        if (status && status.reason !== 'Timeout' && (now - status.lastFail < FAILURE_COOLDOWN)) {
+            console.log(`[Circuit Breaker] Skipping ${tier.name} (failed recently: ${status.reason})`);
+            return false;
+        }
+        return true;
+    });
+
+    const finalQueue = availableQueue.length > 0 ? availableQueue : executionQueue;
+
+    for (let i = 0; i < finalQueue.length; i++) {
+        const tier = finalQueue[i];
+        try {
+            console.log(`[Tier ${i + 1}] Attempting ${tier.name}...`);
+            let res;
+            if (tier.type === 'gemini') res = await runGemini(tier.name, tier.timeout);
+            else if (tier.type === 'cohere') res = await runCohere(tier.name, tier.timeout);
+            else if (tier.type === 'groq') res = await runGroq(tier.name, tier.timeout);
+            else if (tier.type === 'hf') res = await runHF(tier.name, tier.timeout);
+
+            finalResponse = res.text;
+            providerUsed = res.provider;
+            if (i > 0 || finalQueue.length < executionQueue.length) fallbackTriggered = true;
+            
+            delete providerStatus[tier.name];
+            console.log(`[Tier ${i + 1}] Success with ${tier.name} in ${Date.now() - startTime}ms`);
+            break;
+        } catch (error) {
+            const isRateLimit = error.message.includes('429') || error.message.toLowerCase().includes('rate limit') || error.message.includes('quota');
+            const isTimeout = error.message.includes('Timeout');
+            const is503 = error.message.includes('503');
+            
+            const reason = isRateLimit ? 'Rate Limit' : isTimeout ? 'Timeout' : is503 ? 'High Demand' : 'Error';
+            console.warn(`[Tier ${i + 1}] ${tier.name} failed (${reason}): ${error.message}`);
+            
+            providerStatus[tier.name] = { lastFail: Date.now(), reason };
+
+            if (i === finalQueue.length - 1) {
+                finalResponse = "As AI Mitra, I'm currently experiencing extremely high demand across all my brain centers. I'm in power-saving mode. Please try again in a minute!";
+                providerUsed = 'Offline Fallback';
                 fallbackTriggered = true;
-                const res = await runCohere("command-r");
-                finalResponse = res.text; providerUsed = res.provider;
-            }
-        } else if (requestedModel.startsWith('command')) {
-            try {
-                const res = await runCohere(requestedModel);
-                finalResponse = res.text; providerUsed = res.provider;
-            } catch (e) {
-                console.warn(`[${new Date().toISOString()}] ${requestedModel} failed, falling back to Gemini.`, e.message);
-                fallbackTriggered = true;
-                const res = await runGemini("gemini-2.5-flash");
-                finalResponse = res.text; providerUsed = res.provider;
-            }
-        } else {
-            // Auto Mode or specific models like Groq/HF (standard chain: Groq -> Gemini -> Cohere -> HF)
-            try {
-                const res = await runGroq();
-                finalResponse = res.text; providerUsed = res.provider;
-            } catch (e1) {
-                fallbackTriggered = true;
-                try {
-                    const res = await runGemini();
-                    finalResponse = res.text; providerUsed = res.provider;
-                } catch (e2) {
-                    try {
-                        const res = await runCohere();
-                        finalResponse = res.text; providerUsed = res.provider;
-                    } catch (e3) {
-                        try {
-                            const res = await runHF();
-                            finalResponse = res.text; providerUsed = res.provider;
-                        } catch (e4) {
-                            throw e4; // All failed
-                        }
-                    }
-                }
             }
         }
-    } catch (error) {
-        console.error(`[${new Date().toISOString()}] ERROR: AI Provider failed. Error: ${error.message}`);
-        if (fallbackTriggered) {
-            finalResponse = "As AI Mitra, I am currently operating in offline mode. Both my primary and backup AI providers (Gemini & Cohere) are currently unavailable or have reached their quotas. How can I help you today?";
-        } else {
-            finalResponse = `As AI Mitra, I am currently operating in offline mode. The requested AI provider (${requestedModel}) is unavailable. How can I help you today?`;
-        }
-        providerUsed = 'Offline Fallback';
     }
 
     finalResponse = finalResponse.trim();
-
     try {
         const logEntry = new ChatLog({
             userPrompt: prompt,
             finalResponse: finalResponse,
             providerUsed: providerUsed,
-            fallbackTriggered: fallbackTriggered
+            fallbackTriggered: fallbackTriggered,
+            timestamp: new Date()
         });
         await logEntry.save();
     } catch (dbError) {
-        console.error(`[${new Date().toISOString()}] ERROR: Failed to log interaction to MongoDB. Error: ${dbError.message}`);
+        console.error(`[LLM Logging] Failed to save log: ${dbError.message}`);
     }
 
     return { text: finalResponse, provider: providerUsed };

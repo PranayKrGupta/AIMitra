@@ -23,6 +23,14 @@ const userSchema = new mongoose.Schema({
         unique: true,
         sparse: true
     },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    otp: String,
+    otpExpires: Date,
     createdAt: {
         type: Date,
         default: Date.now
@@ -34,9 +42,11 @@ userSchema.pre('save', async function() {
     if (!this.isModified('password')) return;
     
     try {
+        console.log('Hashing password for user:', this.email);
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
     } catch (error) {
+        console.error('Password Hashing Error:', error);
         throw error;
     }
 });

@@ -20,7 +20,7 @@
     
     /* Layout */
     --sidebar-width: 280px;
-    --header-height: 64px;
+    --header-height: 72px;
     --transition-speed: 0.3s;
 }
 
@@ -61,7 +61,7 @@ body:not(.is-logged-out) .logged-out-only {
 
 .global-menu-toggle {
     position: fixed;
-    top: 12px;
+    top: 14px;
     left: 12px;
     z-index: 1001; /* Above sidebar */
     width: 40px;

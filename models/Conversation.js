@@ -20,10 +20,8 @@ const conversationSchema = new mongoose.Schema({
     }
 });
 
-// Auto-update the updatedAt field
-conversationSchema.pre('save', function(next) {
+conversationSchema.pre('save', function() {
     this.updatedAt = Date.now();
-    next();
 });
 
 module.exports = mongoose.model('Conversation', conversationSchema);

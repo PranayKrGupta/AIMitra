@@ -27,6 +27,8 @@
     border-radius: 16px;
     width: 90%;
     max-width: 440px;
+    max-height: 90vh; /* Prevent screen overflow */
+    overflow-y: auto; /* Allow scrolling if keyboard/content grows */
     padding: 24px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     transform: scale(0.95) translateY(10px);
@@ -264,4 +266,98 @@
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
     opacity: 1 !important;
+}
+
+/* Social & Multi-step Auth Styles */
+.social-auth-btn {
+    width: 320px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    border-radius: 50px; /* Pill shape to match Google */
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-main);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.aimitra-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.aimitra-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-muted);
+}
+
+.mini-logo-icon {
+    width: 20px;
+    height: 20px;
+    background: var(--accent-gradient);
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.google-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.google-account-item {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.google-account-item:last-child {
+    border-bottom: none;
+}
+
+.google-account-item:hover {
+    background: var(--surface-hover);
+}
+
+.google-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #4285F4;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.google-user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.google-user-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.google-user-email {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.back-to-auth-methods:hover {
+    color: var(--text-main) !important;
 }

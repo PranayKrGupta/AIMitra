@@ -37,7 +37,7 @@ router.get('/:conversationId', async (req, res) => {
 // POST /api/chat - Process new message (replaces the simple /api/chat block in server.js)
 router.post('/', async (req, res) => {
     try {
-        const { prompt, conversationId } = req.body;
+        const { prompt, conversationId, selectedModel } = req.body;
         if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
 
         let activeConvoId = conversationId;
@@ -71,29 +71,121 @@ router.post('/', async (req, res) => {
         await userMsg.save();
 
         // 3. Generate LLM Response
-        // Note: Currently generateChatResponse internally saves a ChatLog. 
-        // We'll capture its text return and create our structured Message anyway,
-        // or we could refactor llmFallbackService. For now, it works.
-        const responseText = await generateChatResponse(prompt);
+        const { text: responseText, provider } = await generateChatResponse(prompt, selectedModel);
 
         // 4. Save Bot Message
         const botMsg = new Message({
             conversationId: activeConvoId,
             role: 'bot',
             content: responseText,
-            providerUsed: 'LLM Service' // Ideally we extract this from the service if we refactored
+            providerUsed: provider
         });
         await botMsg.save();
 
-        // 5. Return payload
+        // 5. Return payload including IDs for editing support
         res.json({
             conversationId: activeConvoId,
-            response: responseText
+            userMessageId: userMsg._id,
+            botMessageId: botMsg._id,
+            response: responseText,
+            provider: provider
         });
 
     } catch (error) {
         console.error('Server error during chat routing:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// PUT /api/chat/message/:messageId - Edit a message and re-generate response
+router.put('/message/:messageId', async (req, res) => {
+    try {
+        const { prompt, selectedModel } = req.body;
+        const { messageId } = req.params;
+
+        console.log(`[API] Editing message ${messageId}: "${prompt}" using model ${selectedModel}`);
+
+        if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+
+        // 1. Find the message and verify ownership via conversation
+        const userMsg = await Message.findById(messageId);
+        if (!userMsg || userMsg.role !== 'user') {
+            return res.status(404).json({ error: 'User message not found' });
+        }
+
+        const convo = await Conversation.findOne({ _id: userMsg.conversationId, userId: req.user.userId });
+        if (!convo) return res.status(403).json({ error: 'Unauthorized' });
+
+        // 2. Update user message content
+        userMsg.content = prompt;
+        await userMsg.save();
+
+        // 3. Delete all messages that come AFTER this message in the conversation
+        // This ensures the bot responds to the new version and the chat continues from there
+        await Message.deleteMany({
+            conversationId: userMsg.conversationId,
+            createdAt: { $gt: userMsg.createdAt }
+        });
+
+        // 4. Generate NEW LLM Response
+        const { text: responseText, provider } = await generateChatResponse(prompt, selectedModel);
+
+        // 5. Save NEW Bot Message
+        const botMsg = new Message({
+            conversationId: userMsg.conversationId,
+            role: 'bot',
+            content: responseText,
+            providerUsed: provider
+        });
+        await botMsg.save();
+
+        // 6. Update conversation timestamp
+        convo.updatedAt = Date.now();
+        await convo.save();
+
+        res.json({
+            userMessageId: userMsg._id,
+            botMessageId: botMsg._id,
+            response: responseText,
+            provider: provider
+        });
+
+    } catch (error) {
+        console.error('Error editing message:', error);
+        res.status(500).json({ error: 'Failed to edit message / re-generate response' });
+    }
+});
+
+// DELETE /api/chat/:conversationId
+router.delete('/:conversationId', async (req, res) => {
+    try {
+        const convo = await Conversation.findOneAndDelete({ _id: req.params.conversationId, userId: req.user.userId });
+        if (!convo) return res.status(404).json({ error: 'Conversation not found' });
+        
+        await Message.deleteMany({ conversationId: req.params.conversationId });
+        res.json({ message: 'Conversation deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting conversation:', error);
+        res.status(500).json({ error: 'Failed to delete conversation' });
+    }
+});
+
+// PUT /api/chat/:conversationId/rename
+router.put('/:conversationId/rename', async (req, res) => {
+    try {
+        const { title } = req.body;
+        if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
+
+        const convo = await Conversation.findOne({ _id: req.params.conversationId, userId: req.user.userId });
+        if (!convo) return res.status(404).json({ error: 'Conversation not found' });
+        
+        convo.title = title.trim();
+        await convo.save();
+        
+        res.json({ message: 'Conversation renamed successfully', title: convo.title });
+    } catch (error) {
+        console.error('Error renaming conversation:', error);
+        res.status(500).json({ error: 'Failed to rename conversation' });
     }
 });
 

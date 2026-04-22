@@ -12,7 +12,7 @@ const chatLogSchema = new mongoose.Schema({
     providerUsed: {
         type: String,
         required: true,
-        enum: ['Groq', 'Gemini', 'Cohere', 'Hugging Face', 'None']
+        enum: ['Groq', 'Gemini', 'Cohere', 'Hugging Face', 'None', 'Offline Fallback']
     },
     fallbackTriggered: {
         type: Boolean,

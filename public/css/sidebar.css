@@ -99,15 +99,53 @@
 .history-item {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 12px;
-    padding: 10px 12px;
+    justify-content: space-between;
+    padding: 8px 12px;
     border-radius: 10px;
     color: var(--text-muted);
-    cursor: pointer;
     transition: all 0.2s;
     font-size: 0.9rem;
     white-space: nowrap;
+}
+
+.history-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.history-item:hover .history-item-actions {
+    opacity: 1;
+}
+
+.action-chat-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.action-chat-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+}
+
+.action-chat-btn.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.action-chat-btn i {
+    width: 14px !important;
+    height: 14px !important;
 }
 
 .history-item:hover, .history-item.active {
@@ -180,14 +218,55 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 10px;
-    width: max-content;
-    background: transparent;
-    border: none;
+    gap: 12px;
+    padding: 12px 16px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05); /* Neat BG for settings */
+    border: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--text-muted);
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 12px;
     transition: all 0.2s;
+    font-weight: 600;
+}
+
+.settings-text {
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.user-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    width: 100%;
+    margin-top: 4px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.user-profile-info:hover {
+    background: var(--surface-hover);
+}
+
+.sidebar-user-name {
+    padding: 8px 12px;
+    background: rgba(99, 102, 241, 0.1); /* Neat BG for profile name only */
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.user-profile-info:hover .sidebar-user-name {
+    background: rgba(99, 102, 241, 0.2);
 }
 
 .settings-gear-btn:hover {
@@ -202,21 +281,22 @@
 
 .settings-dropdown {
     position: absolute;
-    bottom: 64px; /* Appear above the gear icon */
+    bottom: calc(100% + 5px); 
     left: 16px;
-    width: 240px;
-    background: var(--chat-bg);
+    width: 260px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 8px;
+    border-radius: 20px;
+    padding: 10px;
     box-shadow: var(--shadow-main);
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px) scale(0.95);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     z-index: 1000;
     transform-origin: bottom left;
 }
@@ -231,28 +311,30 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
-    border-radius: 10px;
+    padding: 12px 16px;
+    border-radius: 12px;
     color: var(--text-main);
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 500;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 }
 
 .dropdown-item:hover {
     background: var(--surface-hover);
+    transform: translateX(4px);
 }
 
 .dropdown-item i {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     color: var(--text-muted);
-    transition: color 0.2s;
+    transition: all 0.2s;
 }
 
 .dropdown-item:hover i {
-    color: var(--text-main);
+    color: var(--accent-primary);
+    transform: scale(1.1);
 }
 
 .dropdown-divider {
@@ -277,8 +359,16 @@
 
 .sidebar.collapsed span,
 .sidebar.collapsed .user-info,
-.sidebar.collapsed .section-label {
+.sidebar.collapsed .section-label,
+.sidebar.collapsed .settings-text,
+.sidebar.collapsed .sidebar-user-name,
+.sidebar.collapsed .user-profile-info span {
     display: none !important;
+}
+
+.sidebar.collapsed .user-profile-info {
+    justify-content: center;
+    padding: 0;
 }
 
 .sidebar.collapsed .settings-dropdown span {
@@ -287,10 +377,12 @@
 
 .sidebar.collapsed .new-chat-btn,
 .sidebar.collapsed .settings-gear-btn {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     justify-content: center;
+    background: transparent;
+    border-color: transparent;
 }
 
 .sidebar.collapsed .chat-history {

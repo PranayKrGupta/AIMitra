@@ -1372,7 +1372,7 @@ if (sendOtpBtn) {
     });
 }
 
-const GOOGLE_CLIENT_ID = "177287231758-mj967rl94089527n5vsf2naluru16eig.apps.googleusercontent.com"; 
+const GOOGLE_CLIENT_ID = "377795330142-v4ivcei3umbesj9mf5uisvef98a1ser5.apps.googleusercontent.com"; 
 let googleInitialized = false;
 
 function initializeGoogleAuth() {

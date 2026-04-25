@@ -787,11 +787,12 @@ function addMessage(role, text, isTyping = false, provider = null, id = null, sh
     messageRow.innerHTML = `
         <div class="message-content">
             ${avatarHtml}
-            <div style="display: flex; flex-direction: column; width: 100%; align-items: inherit;">
+            <div class="message-text-wrapper">
                 <div class="message-text">${contentHtml}</div>
                 ${actionsHtml}
             </div>
         </div>
+
     `;
 
     messagesArea.appendChild(messageRow);

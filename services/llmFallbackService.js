@@ -1,15 +1,11 @@
 require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { CohereClient } = require('cohere-ai');
-const Groq = require('groq-sdk');
-const { HfInference } = require('@huggingface/inference');
 const ChatLog = require('../models/ChatLog');
 
 // Initialize API Clients
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 const cohere = process.env.COHERE_API_KEY ? new CohereClient({ token: process.env.COHERE_API_KEY }) : null;
-const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
-const hf = process.env.HUGGINGFACE_API_KEY ? new HfInference(process.env.HUGGINGFACE_API_KEY) : null;
 
 // Circuit Breaker State
 const providerStatus = {}; 
@@ -27,19 +23,39 @@ async function withTimeout(promise, ms, label) {
 
 /**
  * Generates a chat response using a cost-effective, rate-limit-conscious tiered fallback.
+ * Includes conversation history for context.
  */
-async function generateChatResponse(prompt, requestedModel = 'auto') {
+async function generateChatResponse(prompt, requestedModel = 'auto', history = []) {
     let finalResponse = '';
     let providerUsed = 'None';
     let fallbackTriggered = false;
     const startTime = Date.now();
 
+    // Format history for different providers
+    const formatHistoryGemini = () => {
+        return history.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }]
+        }));
+    };
+
+    const formatHistoryCohere = () => {
+        return history.map(msg => ({
+            role: msg.role === 'user' ? 'USER' : 'CHATBOT',
+            message: msg.content
+        }));
+    };
+
     // Provider Helpers
     const runGemini = async (modelName, timeoutMs) => {
         if (!genAI) throw new Error("Gemini API key missing");
         const model = genAI.getGenerativeModel({ model: modelName });
+        
+        const contents = formatHistoryGemini();
+        contents.push({ role: 'user', parts: [{ text: prompt }] });
+
         const result = await withTimeout(model.generateContent({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            contents: contents,
         }), timeoutMs, `Gemini ${modelName}`);
         const response = await result.response;
         return { text: response.text() || '', provider: `Gemini (${modelName})` };
@@ -49,32 +65,10 @@ async function generateChatResponse(prompt, requestedModel = 'auto') {
         if (!cohere) throw new Error("Cohere API key missing");
         const response = await withTimeout(cohere.chat({
             message: prompt,
-            model: modelName
+            model: modelName,
+            chat_history: formatHistoryCohere()
         }), timeoutMs, `Cohere ${modelName}`);
         return { text: response.text || '', provider: `Cohere (${modelName})` };
-    };
-
-    const runGroq = async (modelName, timeoutMs) => {
-        if (!groq) throw new Error("Groq API key missing");
-        const result = await withTimeout(groq.chat.completions.create({
-            messages: [{ role: 'user', content: prompt }],
-            model: modelName,
-        }), timeoutMs, `Groq ${modelName}`);
-        return { text: result.choices[0]?.message?.content || '', provider: `Groq (${modelName})` };
-    };
-
-    const runHF = async (modelName, timeoutMs) => {
-        if (!hf) throw new Error("Hugging Face API key missing");
-        const result = await withTimeout(hf.textGeneration({
-            model: modelName,
-            inputs: prompt,
-            parameters: { max_new_tokens: 500 }
-        }), timeoutMs, `HF ${modelName}`);
-        let generatedText = result.generated_text || '';
-        if (generatedText.startsWith(prompt)) {
-            generatedText = generatedText.substring(prompt.length).trim();
-        }
-        return { text: generatedText, provider: `HuggingFace (${modelName})` };
     };
 
     // Tiers with Balanced Timeouts (Lighter = faster, Heavier = more patient)
@@ -84,7 +78,6 @@ async function generateChatResponse(prompt, requestedModel = 'auto') {
         { name: 'command-r7b-12-2024', type: 'cohere', timeout: 20000 },
         { name: 'command-r-08-2024', type: 'cohere', timeout: 35000 },
         { name: 'command-r-plus-08-2024', type: 'cohere', timeout: 45000 },
-        { name: 'llama3-8b-8192', type: 'groq', timeout: 15000 },
         { name: 'gemini-2.5-pro', type: 'gemini', timeout: 50000 }
     ];
 
@@ -131,8 +124,6 @@ async function generateChatResponse(prompt, requestedModel = 'auto') {
             let res;
             if (tier.type === 'gemini') res = await runGemini(tier.name, tier.timeout);
             else if (tier.type === 'cohere') res = await runCohere(tier.name, tier.timeout);
-            else if (tier.type === 'groq') res = await runGroq(tier.name, tier.timeout);
-            else if (tier.type === 'hf') res = await runHF(tier.name, tier.timeout);
 
             finalResponse = res.text;
             providerUsed = res.provider;

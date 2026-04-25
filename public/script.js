@@ -18,7 +18,7 @@ const micBtn = document.querySelector('.mic-btn');
 
 
 // App State
-let currentTheme = 'dark';
+let currentTheme = 'solarized-dark';
 let currentUser = { name: 'User', id: null, email: null };
 let authToken = localStorage.getItem('token');
 let currentConversationId = null;
@@ -37,22 +37,23 @@ let currentMsgIndex = 0;
 // Initialization on load
 document.addEventListener('DOMContentLoaded', () => {
     // Restore Theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        currentTheme = savedTheme;
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        document.body.setAttribute('data-theme', currentTheme);
-        
-        let iconName = 'moon';
-        if (currentTheme === 'light') iconName = 'sun';
-        else if (currentTheme === 'solarized-dark') iconName = 'cloud-moon';
-        else if (currentTheme === 'solarized-light') iconName = 'cloud-sun';
-        
-        if (themeToggle) {
-            themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
+    const savedTheme = localStorage.getItem('theme') || 'solarized-dark';
+    currentTheme = savedTheme;
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    document.body.setAttribute('data-theme', currentTheme);
+    
+    let iconName = 'moon';
+    if (currentTheme === 'light') iconName = 'sun';
+    else if (currentTheme === 'solarized-dark') iconName = 'cloud-moon';
+    else if (currentTheme === 'solarized-light') iconName = 'cloud-sun';
+    
+    if (themeToggle) {
+        themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+    updateHljsTheme(currentTheme);
+
+
 
     if (authToken) {
         fetchProfile();
@@ -743,7 +744,7 @@ async function updateMessageAndRegenerate(messageId, text) {
     }
 }
 
-function addMessage(role, text, isTyping = false, provider = null, id = null) {
+function addMessage(role, text, isTyping = false, provider = null, id = null, shouldType = false) {
     const messageRow = document.createElement('div');
     messageRow.className = `message-row ${role}-row`;
     if (id) {
@@ -768,7 +769,7 @@ function addMessage(role, text, isTyping = false, provider = null, id = null) {
                 <div class="typing-dot"></div>
             </div>`;
     } else {
-        contentHtml = formatText(text);
+        contentHtml = shouldType ? '' : formatText(text);
     }
 
     const actionsHtml = `
@@ -795,6 +796,11 @@ function addMessage(role, text, isTyping = false, provider = null, id = null) {
 
     messagesArea.appendChild(messageRow);
 
+    if (shouldType && !isTyping) {
+        const textElement = messageRow.querySelector('.message-text');
+        typeMessage(textElement, text);
+    }
+
     // Re-run Lucide to render icon in badge if present
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
@@ -806,6 +812,38 @@ function addMessage(role, text, isTyping = false, provider = null, id = null) {
     
     return messageRow;
 }
+
+async function typeMessage(element, text, speed = 80) {
+    const lines = text.split('\n');
+    let currentText = '';
+    element.innerHTML = '';
+    
+    if (sendBtn) sendBtn.disabled = true;
+
+    return new Promise(resolve => {
+        let lineIndex = 0;
+        const interval = setInterval(() => {
+            if (lineIndex < lines.length) {
+                currentText += lines[lineIndex] + (lineIndex < lines.length - 1 ? '\n' : '');
+                element.innerHTML = formatText(currentText);
+                lineIndex++;
+                
+                if (messagesArea) {
+                    const isAtBottom = messagesArea.scrollHeight - messagesArea.scrollTop <= messagesArea.clientHeight + 150;
+                    if (isAtBottom) {
+                        messagesArea.scrollTop = messagesArea.scrollHeight;
+                    }
+                }
+            } else {
+                clearInterval(interval);
+                element.innerHTML = formatText(text);
+                if (sendBtn) sendBtn.disabled = chatInput.value.trim() === '';
+                resolve();
+            }
+        }, speed);
+    });
+}
+
 
 async function simulateBotResponse(userMsg) {
     // Typing indicator
@@ -846,7 +884,7 @@ async function simulateBotResponse(userMsg) {
                 }
             }
 
-            addMessage('bot', data.response, false, data.provider, data.botMessageId);
+            addMessage('bot', data.response, false, data.provider, data.botMessageId, true);
 
             // Auto-update model selector UI if a fallback occurred
             if (data.provider && data.provider !== 'None' && data.provider !== 'Offline Fallback') {
@@ -994,10 +1032,14 @@ function showToast(message, iconName = 'check') {
 }
 
 function formatText(text) {
-    // Simple formatting for demo (bold, etc)
-    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
+    if (typeof marked === 'undefined') {
+        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+    }
+    
+    return marked.parse(text);
 }
+
 
 // --- Utilities ---
 
@@ -1036,6 +1078,8 @@ themeToggle.addEventListener('click', () => {
     document.documentElement.setAttribute('data-theme', currentTheme);
     document.body.setAttribute('data-theme', currentTheme);
     localStorage.setItem('theme', currentTheme);
+    updateHljsTheme(currentTheme);
+
 
     // Update Icon based on theme
     let iconName = 'moon';
@@ -1045,9 +1089,25 @@ themeToggle.addEventListener('click', () => {
 
     themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    
-    showToast(`Theme: ${currentTheme.replace('-', ' ')}`, 'palette');
 });
+
+function updateHljsTheme(theme) {
+    const link = document.getElementById('hljsTheme');
+    if (!link) return;
+    
+    let themeUrl = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+    if (theme === 'light') {
+        themeUrl = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+    } else if (theme === 'solarized-light') {
+        themeUrl = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/solarized-light.min.css';
+    } else if (theme === 'solarized-dark') {
+        themeUrl = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/solarized-dark.min.css';
+    }
+    
+    link.href = themeUrl;
+}
+
+
 
 
 // Clickable Suggestions

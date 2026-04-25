@@ -70,8 +70,16 @@ router.post('/', async (req, res) => {
         });
         await userMsg.save();
 
-        // 3. Generate LLM Response
-        const { text: responseText, provider } = await generateChatResponse(prompt, selectedModel);
+        // 3. Fetch History (limit to last 10 messages for context)
+        const history = await Message.find({ conversationId: activeConvoId })
+            .sort({ createdAt: 1 })
+            .limit(100); // Fetch up to 100 but we will slice the last 10 later if needed
+        
+        // We only want history BEFORE the current message we just saved
+        const historyContext = history.filter(m => m._id.toString() !== userMsg._id.toString()).slice(-10);
+
+        // 4. Generate LLM Response with context
+        const { text: responseText, provider } = await generateChatResponse(prompt, selectedModel, historyContext);
 
         // 4. Save Bot Message
         const botMsg = new Message({
@@ -127,8 +135,14 @@ router.put('/message/:messageId', async (req, res) => {
             createdAt: { $gt: userMsg.createdAt }
         });
 
-        // 4. Generate NEW LLM Response
-        const { text: responseText, provider } = await generateChatResponse(prompt, selectedModel);
+        // 4. Fetch History for the current conversation (context)
+        // Since we deleted subsequent messages, we just fetch what remains
+        const historyContext = await Message.find({ conversationId: userMsg.conversationId })
+            .sort({ createdAt: 1 })
+            .limit(10);
+
+        // 5. Generate NEW LLM Response with context
+        const { text: responseText, provider } = await generateChatResponse(prompt, selectedModel, historyContext);
 
         // 5. Save NEW Bot Message
         const botMsg = new Message({

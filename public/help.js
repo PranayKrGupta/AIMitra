@@ -3,7 +3,7 @@ lucide.createIcons();
 
 // Theme Handling
 function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'solarized-dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.body.setAttribute('data-theme', savedTheme);
 }

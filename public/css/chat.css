@@ -167,7 +167,7 @@
 
 .welcome-screen {
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -325,7 +325,7 @@
 
 .message-row {
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     display: flex;
     padding: 0 20px;
@@ -334,7 +334,7 @@
 }
 
 .message-content {
-    max-width: 80%;
+    max-width: 90%;
     margin: 0;
     display: flex;
     gap: 16px;
@@ -371,6 +371,72 @@
     position: relative;
     /* Anchor for actions */
 }
+
+/* Markdown Specific Styles */
+.message-text h1, .message-text h2, .message-text h3 {
+    margin: 16px 0 8px 0;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-main);
+}
+
+.message-text h1 { font-size: 1.4rem; }
+.message-text h2 { font-size: 1.2rem; }
+.message-text h3 { font-size: 1.1rem; }
+
+.message-text p {
+    margin-bottom: 12px;
+}
+
+.message-text ul, .message-text ol {
+    margin: 8px 0 16px 24px;
+}
+
+.message-text li {
+    margin-bottom: 4px;
+}
+
+.message-text code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+}
+
+.message-text pre {
+    background: var(--code-bg);
+    padding: 16px;
+    border-radius: 12px;
+    margin: 12px 0;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+}
+
+
+.message-text pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    display: block;
+    line-height: 1.5;
+}
+
+
+.typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background-color: var(--accent-primary);
+    margin-left: 2px;
+    animation: cursor-blink 0.8s infinite;
+    vertical-align: middle;
+}
+
+@keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 
 /* Message Actions (Copy/Edit) */
 .message-actions {
@@ -442,6 +508,7 @@
 }
 
 .bot-row .message-content {
+    max-width: 100%;
     flex-direction: row;
 }
 
@@ -535,7 +602,7 @@
 }
 
 .input-wrapper {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     background: var(--surface-hover);
     border: 1px solid var(--border-color);

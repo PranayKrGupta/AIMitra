@@ -5,7 +5,7 @@
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    z-index: 100;
+    z-index: 1000;
     height: 100vh;
     transition: width var(--transition-speed) ease, transform var(--transition-speed) ease;
     -ms-overflow-style: none;
@@ -344,60 +344,62 @@
 }
 
 /* Collapsed Sidebar Logic */
-.sidebar.collapsed {
-    width: 68px;
-    transform: none; 
-    overflow: visible;
-}
+@media (min-width: 769px) {
+    .sidebar.collapsed {
+        width: 68px;
+        transform: none; 
+        overflow: visible;
+    }
 
-.sidebar.collapsed .sidebar-header,
-.sidebar.collapsed .sidebar-footer {
-    padding-left: 14px;
-    padding-right: 14px;
-    align-items: center;
-}
+    .sidebar.collapsed .sidebar-header,
+    .sidebar.collapsed .sidebar-footer {
+        padding-left: 14px;
+        padding-right: 14px;
+        align-items: center;
+    }
 
-.sidebar.collapsed span,
-.sidebar.collapsed .user-info,
-.sidebar.collapsed .section-label,
-.sidebar.collapsed .settings-text,
-.sidebar.collapsed .sidebar-user-name,
-.sidebar.collapsed .user-profile-info span {
-    display: none !important;
-}
+    .sidebar.collapsed span,
+    .sidebar.collapsed .user-info,
+    .sidebar.collapsed .section-label,
+    .sidebar.collapsed .settings-text,
+    .sidebar.collapsed .sidebar-user-name,
+    .sidebar.collapsed .user-profile-info span {
+        display: none !important;
+    }
 
-.sidebar.collapsed .user-profile-info {
-    justify-content: center;
-    padding: 0;
-}
+    .sidebar.collapsed .user-profile-info {
+        justify-content: center;
+        padding: 0;
+    }
 
-.sidebar.collapsed .settings-dropdown span {
-    display: block !important;
-}
+    .sidebar.collapsed .settings-dropdown span {
+        display: block !important;
+    }
 
-.sidebar.collapsed .new-chat-btn,
-.sidebar.collapsed .settings-gear-btn {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    justify-content: center;
-    background: transparent;
-    border-color: transparent;
-}
+    .sidebar.collapsed .new-chat-btn,
+    .sidebar.collapsed .settings-gear-btn {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        justify-content: center;
+        background: transparent;
+        border-color: transparent;
+    }
 
-.sidebar.collapsed .chat-history {
-    align-items: center;
-}
+    .sidebar.collapsed .chat-history {
+        align-items: center;
+    }
 
-.sidebar.collapsed .history-item {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    justify-content: center;
-}
+    .sidebar.collapsed .history-item {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        justify-content: center;
+    }
 
-.sidebar.collapsed .sidebar-content {
-    display: none !important;
+    .sidebar.collapsed .sidebar-content {
+        display: none !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -413,5 +415,29 @@
 
     .sidebar.active {
         transform: translateX(0);
+    }
+}
+
+/* Sidebar Overlay for Mobile */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999; /* Just below sidebar (1000) but above content */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .sidebar.active + .sidebar-overlay {
+        opacity: 1;
+        visibility: visible;
     }
 }

@@ -391,28 +391,33 @@ function processLogout() {
 
 // Sidebar manual toggle
 const globalSidebarToggle = document.getElementById('globalSidebarToggle');
-globalSidebarToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    if (sidebar.classList.contains('collapsed')) {
-        globalSidebarToggle.title = "Expand menu";
+globalSidebarToggle.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent document click from immediately closing it
+    if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('active');
     } else {
-        globalSidebarToggle.title = "Collapse menu";
+        sidebar.classList.toggle('collapsed');
+        if (sidebar.classList.contains('collapsed')) {
+            globalSidebarToggle.title = "Expand menu";
+        } else {
+            globalSidebarToggle.title = "Collapse menu";
+        }
     }
 });
 
 // --- Sidebar Interactivity ---
 
-// Toggle sidebar on mobile
-if (menuToggle) {
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
+// Close sidebar when clicking outside on mobile
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
     });
 }
 
-// Close sidebar when clicking outside on mobile
 document.addEventListener('click', (e) => {
     if (window.innerWidth <= 768 && !sidebar.contains(e.target)) {
-        if (menuToggle && menuToggle.contains(e.target)) return;
+        if (globalSidebarToggle && globalSidebarToggle.contains(e.target)) return;
         sidebar.classList.remove('active');
     }
 });

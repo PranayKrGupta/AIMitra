@@ -270,7 +270,8 @@
 
 /* Social & Multi-step Auth Styles */
 .social-auth-btn {
-    width: 320px;
+    width: 100%;
+    max-width: 320px;
     margin: 0 auto;
     padding: 12px 24px;
     border-radius: 50px; /* Pill shape to match Google */

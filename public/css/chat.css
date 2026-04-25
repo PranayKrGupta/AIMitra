@@ -185,11 +185,7 @@
     width: 100%;
 }
 
-.logo-icon.large {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-}
+
 
 .welcome-text-wrapper {
     display: flex;

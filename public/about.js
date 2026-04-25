@@ -3,16 +3,9 @@ lucide.createIcons();
 
 // Theme Handling
 function initTheme() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const theme = urlParams.get('theme');
-    
-    if (theme === 'light') {
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
-    } else {
-        document.body.classList.add('dark-theme');
-        document.body.classList.remove('light-theme');
-    }
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.body.setAttribute('data-theme', savedTheme);
 }
 
 // Fade-in Intersection Observer

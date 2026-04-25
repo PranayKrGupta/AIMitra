@@ -36,6 +36,24 @@ let currentMsgIndex = 0;
 
 // Initialization on load
 document.addEventListener('DOMContentLoaded', () => {
+    // Restore Theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        currentTheme = savedTheme;
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        document.body.setAttribute('data-theme', currentTheme);
+        
+        let iconName = 'moon';
+        if (currentTheme === 'light') iconName = 'sun';
+        else if (currentTheme === 'solarized-dark') iconName = 'cloud-moon';
+        else if (currentTheme === 'solarized-light') iconName = 'cloud-sun';
+        
+        if (themeToggle) {
+            themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
+
     if (authToken) {
         fetchProfile();
         fetchChatHistory();
@@ -1011,13 +1029,26 @@ function resetChat() {
 
 // Theme Toggle
 themeToggle.addEventListener('click', () => {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    const themes = ['dark', 'light', 'solarized-dark', 'solarized-light'];
+    let currentIndex = themes.indexOf(currentTheme);
+    currentTheme = themes[(currentIndex + 1) % themes.length];
+    
     document.documentElement.setAttribute('data-theme', currentTheme);
     document.body.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('theme', currentTheme);
 
-    themeToggle.innerHTML = currentTheme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
-    lucide.createIcons();
+    // Update Icon based on theme
+    let iconName = 'moon';
+    if (currentTheme === 'light') iconName = 'sun';
+    else if (currentTheme === 'solarized-dark') iconName = 'cloud-moon';
+    else if (currentTheme === 'solarized-light') iconName = 'cloud-sun';
+
+    themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    showToast(`Theme: ${currentTheme.replace('-', ' ')}`, 'palette');
 });
+
 
 // Clickable Suggestions
 suggestionChips.forEach(chip => {

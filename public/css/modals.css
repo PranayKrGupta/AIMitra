@@ -302,7 +302,7 @@
 .mini-logo-icon {
     width: 20px;
     height: 20px;
-    background: var(--accent-gradient);
+    background: url('../logo.png') center/contain no-repeat;
     border-radius: 5px;
     flex-shrink: 0;
 }

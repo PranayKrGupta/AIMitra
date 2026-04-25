@@ -36,6 +36,37 @@
     --glass-bg: rgba(241, 245, 249, 0.7);
 }
 
+[data-theme="solarized-dark"] {
+    --bg-dark: #001e26;
+    --sidebar-bg: #002b36;
+    --chat-bg: #073642;
+    --accent-primary: #268bd2;
+    --accent-secondary: #2aa198;
+    --accent-gradient: linear-gradient(135deg, #268bd2 0%, #2aa198 100%);
+    --text-main: #93a1a1;
+    --text-muted: #586e75;
+    --border-color: rgba(147, 161, 161, 0.15);
+    --bubble-user: #002b36;
+    --surface-hover: rgba(147, 161, 161, 0.07);
+    --glass-bg: rgba(0, 43, 54, 0.7);
+}
+
+[data-theme="solarized-light"] {
+    --bg-dark: #eee8d5;
+    --sidebar-bg: #fdf6e3;
+    --chat-bg: #fdf6e3;
+    --accent-primary: #268bd2;
+    --accent-secondary: #d33682;
+    --accent-gradient: linear-gradient(135deg, #268bd2 0%, #d33682 100%);
+    --text-main: #586e75;
+    --text-muted: #839496;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --bubble-user: #eee8d5;
+    --surface-hover: rgba(0, 0, 0, 0.04);
+    --glass-bg: rgba(253, 246, 227, 0.7);
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -59,6 +90,33 @@ body {
 body:not(.is-logged-out) .logged-out-only {
     display: none !important;
 }
+
+/* Global Logo Styles */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: url('/logo.png') center/contain no-repeat;
+    border-radius: 8px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.logo-icon.large {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+}
+
 
 .global-menu-toggle {
     position: fixed;

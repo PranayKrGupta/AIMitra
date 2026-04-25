@@ -23,35 +23,7 @@
     gap: 20px;
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--text-main);
-}
 
-.logo-icon {
-    width: 32px;
-    height: 32px;
-    background: var(--accent-gradient);
-    border-radius: 8px;
-    position: relative;
-}
-
-.logo-icon::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 12px;
-    height: 12px;
-    background: white;
-    border-radius: 2px;
-}
 
 .new-chat-btn {
     display: flex;

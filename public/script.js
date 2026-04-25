@@ -248,9 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (res.ok) {
                     if (chatElementToDelete) chatElementToDelete.remove();
                     if (currentConversationId === chatToDelete) {
-                        currentConversationId = null;
-                        document.getElementById('messagesArea').innerHTML = '';
-                        document.getElementById('welcomeScreen').style.display = 'flex';
+                        resetChat();
                     }
                 }
             } catch (e) {

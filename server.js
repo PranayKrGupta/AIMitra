@@ -23,13 +23,15 @@ app.use('/api/user', userRoutes);
 app.use('/api/chat', chatRoutes);
 
 
-// Connect to MongoDB & Start Server
+// Start Server unconditionally so Render always sees an active web service
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+// Connect to MongoDB asynchronously
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/aimitra')
     .then(() => {
         console.log('✅ Connected to MongoDB');
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on http://localhost:${PORT}`);
-        });
     })
     .catch((err) => {
         console.error('❌ Failed to connect to MongoDB', err);

@@ -213,7 +213,11 @@ router.post('/forgot-password', async (req, res) => {
         await user.save();
 
         // Send Email
-        const resetUrl = `http://localhost:${process.env.PORT || 3000}/reset-password.html?token=${resetToken}`;
+        // Dynamic URL based on environment
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+        const host = req.get('host');
+        const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
+        const resetUrl = `${baseUrl}/reset-password.html?token=${resetToken}`;
         
         const mailOptions = {
             to: user.email,

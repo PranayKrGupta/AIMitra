@@ -12,6 +12,9 @@ const chatRoutes = require('./routes/chat');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Enable trust proxy for Render/proxies to get correct protocol/host
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors());
 app.use(express.json());

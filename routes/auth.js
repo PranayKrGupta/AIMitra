@@ -15,22 +15,14 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const emailjs = require('@emailjs/nodejs');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev_only';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Reusable Transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
-const FROM_NAME = `"AI Mitra" <${process.env.EMAIL_USER}>`;
+// EmailJS uses templates configured in the dashboard, so we don't need FROM_EMAIL here.
 
 // POST /api/auth/google-login
 router.post('/google-login', async (req, res) => {
@@ -104,23 +96,25 @@ router.post('/send-otp', async (req, res) => {
             { upsert: true, returnDocument: 'after' }
         );
 
-        // Send Email
-        // Remove local transporter to use global one
-        const mailOptions = {
-            to: email,
-            from: FROM_NAME,
-            subject: 'AI Mitra Verification Code',
-            html: `
-                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                    <h2 style="color: #6366f1;">Welcome to AI Mitra</h2>
-                    <p>Your verification code is:</p>
-                    <h1 style="font-size: 32px; letter-spacing: 5px; color: #1f2937;">${otp}</h1>
-                    <p>This code expires in 10 minutes.</p>
-                </div>
-            `
-        };
-
-        await transporter.sendMail(mailOptions);
+        // Send Email using EmailJS
+        try {
+            await emailjs.send(
+                process.env.EMAILJS_SERVICE_ID,
+                process.env.EMAILJS_TEMPLATE_SIGNUP,
+                {
+                    to_email: email,
+                    otp_code: otp,
+                    reply_to: 'noreply@aimitra.com'
+                },
+                {
+                    publicKey: process.env.EMAILJS_PUBLIC_KEY,
+                    privateKey: process.env.EMAILJS_PRIVATE_KEY,
+                }
+            );
+        } catch (error) {
+            console.error('EmailJS error:', error);
+            return res.status(500).json({ error: 'Failed to send verification code' });
+        }
         res.json({ message: 'Verification code sent to email' });
     } catch (error) {
         console.error('Send OTP error:', error);
@@ -224,24 +218,31 @@ router.post('/forgot-password', async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
         await user.save();
 
-        // Send Email
+        // Send Email using EmailJS
         // Dynamic URL based on environment
         const protocol = req.headers['x-forwarded-proto'] || req.protocol;
         const host = req.get('host');
         const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
         const resetUrl = `${baseUrl}/reset-password.html?token=${resetToken}`;
         
-        const mailOptions = {
-            to: user.email,
-            from: FROM_NAME,
-            subject: 'AI Mitra Password Reset',
-            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
-                  `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
-                  `${resetUrl}\n\n` +
-                  `If you did not request this, please ignore this email and your password will remain unchanged.\n`
-        };
-
-        await transporter.sendMail(mailOptions);
+        try {
+            await emailjs.send(
+                process.env.EMAILJS_SERVICE_ID,
+                process.env.EMAILJS_TEMPLATE_RESET,
+                {
+                    to_email: user.email,
+                    reset_link: resetUrl,
+                    reply_to: 'noreply@aimitra.com'
+                },
+                {
+                    publicKey: process.env.EMAILJS_PUBLIC_KEY,
+                    privateKey: process.env.EMAILJS_PRIVATE_KEY,
+                }
+            );
+        } catch (error) {
+            console.error('EmailJS error:', error);
+            return res.status(500).json({ error: 'Failed to send reset email. Please check server configuration.' });
+        }
         
         res.json({ message: 'Reset link has been sent to your email.' });
     } catch (error) {

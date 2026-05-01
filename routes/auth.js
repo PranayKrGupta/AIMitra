@@ -18,6 +18,9 @@ const crypto = require('crypto');
 const emailjs = require('@emailjs/nodejs');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+const emailValidator = require('deep-email-validator');
+
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev_only';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -80,6 +83,19 @@ router.post('/send-otp', async (req, res) => {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
 
+        const emailValidation = await emailValidator.validate({
+            email: email.toLowerCase(),
+            validateRegex: true,
+            validateMx: true,
+            validateTypo: true,
+            validateDisposable: true,
+            validateSMTP: false
+        });
+
+        if (!emailValidation.valid) {
+            return res.status(400).json({ error: 'Please use a valid, non-disposable email address.' });
+        }
+
         // Check if user already exists and is verified
         const existingUser = await User.findOne({ email: email.toLowerCase(), isVerified: true });
         if (existingUser) {
@@ -129,6 +145,10 @@ router.post('/signup', async (req, res) => {
         
         if (!fullName || !email || !password || !otp) {
             return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one letter and one number.' });
         }
 
         const user = await User.findOne({ email: email.toLowerCase() });
@@ -256,6 +276,10 @@ router.post('/reset-password', async (req, res) => {
     try {
         const { token, password } = req.body;
         if (!token || !password) return res.status(400).json({ error: 'Token and new password are required' });
+
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one letter and one number.' });
+        }
 
         const user = await User.findOne({ 
             resetPasswordToken: token, 

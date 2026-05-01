@@ -26,10 +26,12 @@
     "bcryptjs": "^3.0.3",
     "cohere-ai": "^8.0.0",
     "cors": "^2.8.6",
+    "deep-email-validator": "^0.1.27",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "google-auth-library": "^10.6.2",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.4.1"
+    "mongoose": "^9.4.1",
+    "validator": "^13.15.35"
   }
 }

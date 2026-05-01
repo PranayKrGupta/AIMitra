@@ -334,6 +334,10 @@
                             <input type="password" id="authPasswordInput" placeholder="••••••••" style="flex: 1; padding-right: 60px;">
                             <button type="button" class="toggle-password-btn" data-target="authPasswordInput" style="position: absolute; right: 12px; background: transparent; border: none; color: var(--accent-primary); font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 4px;">Show</button>
                         </div>
+                        <div id="passwordStrengthBar" style="height: 4px; border-radius: 2px; margin-top: 8px; background: var(--border-color, #333); display: none; overflow: hidden; position: relative;">
+                            <div id="passwordStrengthFill" style="height: 100%; width: 0%; transition: width 0.3s, background-color 0.3s;"></div>
+                        </div>
+                        <span id="passwordStrengthText" style="font-size: 0.75rem; margin-top: 4px; display: none; font-weight: 500;"></span>
                         <span class="error-msg" id="passwordError" style="color: #ef4444; font-size: 0.75rem; margin-top: 6px; display: none; font-weight: 500;"></span>
                     </div>
 

@@ -1433,6 +1433,12 @@ function setAuthMode(signup) {
 
         const continueEmailText = document.getElementById('continueEmailText');
         if (continueEmailText) continueEmailText.innerText = "Log in with AI Mitra";
+
+        // Hide strength meter in login mode
+        const strengthBar = document.getElementById('passwordStrengthBar');
+        const strengthText = document.getElementById('passwordStrengthText');
+        if (strengthBar) strengthBar.style.display = 'none';
+        if (strengthText) strengthText.style.display = 'none';
     }
 }
 
@@ -1658,7 +1664,44 @@ function validateEmail(email) {
 
 function validatePassword(pwd) {
     // Requires at least one letter, one number, min 8 characters.
-    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&_.\-]{8,}$/.test(pwd);
+    return /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(pwd);
+}
+
+function evaluatePasswordStrength(pwd) {
+    let score = 0;
+    if (!pwd) return { score: 0, text: '', color: 'transparent' };
+    
+    if (pwd.length > 0) score += 1;
+    if (pwd.length >= 8) score += 1;
+    if (/[A-Za-z]/.test(pwd) && /\d/.test(pwd)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+    
+    if (score <= 1) return { score: 25, text: 'Weak', color: '#ef4444' }; // Red
+    if (score === 2 || score === 3) return { score: 60, text: 'Good', color: '#f59e0b' }; // Yellow
+    return { score: 100, text: 'Strong', color: '#10b981' }; // Green
+}
+
+if (authPasswordInput) {
+    authPasswordInput.addEventListener('input', (e) => {
+        if (!isSignupMode) return; // Only show strength meter during signup
+        const pwd = e.target.value;
+        const strengthBar = document.getElementById('passwordStrengthBar');
+        const strengthFill = document.getElementById('passwordStrengthFill');
+        const strengthText = document.getElementById('passwordStrengthText');
+        
+        if (pwd.length > 0) {
+            strengthBar.style.display = 'block';
+            strengthText.style.display = 'block';
+            const { score, text, color } = evaluatePasswordStrength(pwd);
+            strengthFill.style.width = score + '%';
+            strengthFill.style.backgroundColor = color;
+            strengthText.innerText = text;
+            strengthText.style.color = color;
+        } else {
+            strengthBar.style.display = 'none';
+            strengthText.style.display = 'none';
+        }
+    });
 }
 
 function showError(element, inputEl, message) {

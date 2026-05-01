@@ -1,3 +1,15 @@
+/* ==========================================================================
+   Chat Interface Styles
+   This file manages the styling of the main chat area, including the header, 
+   welcome screen, message history (bubbles and markdown formatting), 
+   and the input mechanism.
+   ========================================================================== */
+
+/* 
+   Chat Main Container
+   Defines the primary flex layout for the main content area taking the
+   remaining space next to the sidebar.
+*/
 /* Chat Main Section */
 .chat-container {
     flex: 1;
@@ -22,6 +34,11 @@
     flex-grow: 0;
 }
 
+/* 
+   Chat Header
+   Styles the sticky header at the top of the chat view containing the
+   app name/logo, model selector, and right-side action buttons.
+*/
 .chat-header {
     height: var(--header-height);
     flex-shrink: 0;
@@ -138,6 +155,11 @@
     opacity: 0.9;
 }
 
+/* 
+   Messages Area
+   Scrollable flex container that holds all the chat bubbles. Automatically
+   expands and handles its own scrolling.
+*/
 /* Message Area */
 .messages-area {
     flex-grow: 1;
@@ -165,6 +187,11 @@
     overflow-y: auto;
 }
 
+/* 
+   Welcome Screen (Landing View)
+   The initial view shown when a user starts a new chat. Contains
+   the greeting, dynamic headers, and suggestion chips.
+*/
 .welcome-screen {
     width: 100%;
     max-width: 1000px;
@@ -310,6 +337,11 @@
     background: rgba(99, 102, 241, 0.05);
 }
 
+/* 
+   Chat Bubbles & Message Rows
+   Controls the structural layout of individual message rows (user or bot)
+   and their content alignment.
+*/
 /* Chat Bubbles */
 @keyframes fadeIn {
     from {
@@ -394,6 +426,11 @@
 }
 
 
+/* 
+   Markdown Content Rendering
+   Specific styles targeting parsed markdown elements inside bot messages.
+   Formats headers, lists, code blocks, tables, etc.
+*/
 /* Markdown Specific Styles */
 .message-text h1, .message-text h2, .message-text h3 {
     margin: 16px 0 8px 0;
@@ -473,6 +510,10 @@
 
 
 
+/* 
+   Typing Cursor Animation
+   Simulates a blinking cursor during message streaming.
+*/
 .typing-cursor {
     display: inline-block;
     width: 2px;
@@ -489,6 +530,10 @@
 }
 
 
+/* 
+   Message Actions (Copy/Edit)
+   Styling for the utility buttons that appear upon hovering over a message.
+*/
 /* Message Actions (Copy/Edit) */
 .message-actions {
     display: flex;
@@ -531,6 +576,11 @@
     height: 14px;
 }
 
+/* 
+   User & Bot Message Row Alignment
+   Differentiates between user messages (aligned right, specific background)
+   and bot messages (aligned left, transparent background).
+*/
 .user-row {
     align-items: flex-end;
 }
@@ -577,6 +627,10 @@
 }
 
 
+/* 
+   Typing Dots Animation
+   Shows a bouncy dots loader when the bot is processing a response.
+*/
 /* Typing Dots Animation */
 .typing-dots {
     display: flex;
@@ -643,6 +697,10 @@
     color: var(--accent-primary);
 }
 
+/* 
+   Input Area Container
+   The bottom section containing the text area, send button, and model selector.
+*/
 /* Input Area */
 .input-area {
     padding: 12px 24px 16px;
@@ -683,6 +741,11 @@
     border-color: rgba(99, 102, 241, 0.5);
 }
 
+/* 
+   Chat Input Field
+   The main textarea where the user types their message. Handles
+   auto-expanding and custom scrollbars.
+*/
 #chatInput {
     flex: 1;
     background: transparent;
@@ -753,7 +816,11 @@
     box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
 }
 
-/* Premium Custom Model Selector Inside Input Wrapper */
+/* 
+   Premium Custom Model Selector
+   Styles the dropdown menu within the input area allowing users to switch 
+   between different AI models (e.g., Gemini, Cohere, Groq).
+*/
 .custom-model-selector {
     position: relative;
     display: flex;
@@ -886,7 +953,11 @@
     margin-left: auto;
 }
 
-/* Mic Active Pulse Animation */
+/* 
+   Mic Active Pulse Animation
+   Visual feedback when voice recording is active. Creates a pulsing red 
+   halo effect around the microphone button.
+*/
 @keyframes mic-pulse {
     0% {
         box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
@@ -910,7 +981,11 @@
     animation: mic-pulse 1.5s infinite;
 }
 
-/* Voice Waves Logic */
+/* 
+   Voice Waves Logic
+   Displays animated vertical bars simulating sound waves when the user 
+   is recording audio, temporarily hiding the text input.
+*/
 .voice-waves-container {
     display: none;
     position: absolute;
@@ -968,6 +1043,11 @@
     margin-top: 8px;
 }
 
+/* 
+   Responsive Mobile Adjustments
+   Media queries for screens smaller than 768px. Adjusts padding, layout, 
+   font sizes, and forces constraints to prevent horizontal scrolling on mobile.
+*/
 @media (max-width: 768px) {
     .menu-toggle {
         display: block;
@@ -1080,7 +1160,11 @@
     }
 }
 
-/* Toast Notifications */
+/* 
+   Toast Notifications
+   Styles the transient, non-blocking notification popups appearing at the 
+   bottom of the screen for success or error messages.
+*/
 .toast-container {
     position: fixed;
     bottom: 40px;
@@ -1143,7 +1227,11 @@
     visibility: visible !important;
 }
 
-/* Feedback Modal Enhancements */
+/* 
+   Feedback Modal Enhancements
+   Specific styles for the feedback/rating interface, including star rating 
+   animations and success state visuals.
+*/
 .modal-subtitle {
     color: var(--text-muted);
     font-size: 0.95rem;

@@ -1,3 +1,15 @@
+/**
+ * User Routes (routes/user.js)
+ * 
+ * Features:
+ * - All routes are protected and require user authentication via JWT.
+ * - Fetches the authenticated user's profile information (`GET /profile`).
+ * - Updates user profile details like full name and unique username (`PUT /profile`).
+ * - Provides a "Delete Account" feature that cascades to wipe all associated
+ *   conversations, messages, and the user's account data (`DELETE /profile`).
+ * - Accepts and stores user feedback/ratings (`POST /feedback`).
+ * - Allows authenticated users to update their password (`PUT /update-password`).
+ */
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');

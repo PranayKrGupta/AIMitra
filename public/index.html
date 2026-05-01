@@ -23,13 +23,13 @@
     <link rel="stylesheet" href="css/modals.css">
 </head>
 <body class="is-logged-out">
-    <!-- Floating Menu Toggle -->
+    <!-- Floating Menu Toggle: Global hamburger button visible on mobile screens to toggle the sidebar drawer -->
     <button class="global-menu-toggle" id="globalSidebarToggle" title="Collapse menu">
         <i data-lucide="menu"></i>
     </button>
 
     <div class="app-container">
-        <!-- Sidebar -->
+        <!-- Sidebar Container: Main navigation panel housing 'New Chat', conversation history, and user settings -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <!-- Spacing for fixed menu button -->
@@ -94,7 +94,7 @@
         </aside>
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Main Chat Area -->
+        <!-- Main Chat Area: Primary workspace containing the welcome screen, message stream, and the sticky input form -->
         <main class="chat-container landing-mode">
             <header class="chat-header">
                 <div class="header-left">
@@ -199,7 +199,7 @@
             <div class="vertical-spacer bottom-spacer"></div>
         </main>
     </div>
-    <!-- Profile Edit Modal -->
+    <!-- Profile Edit Modal: Dialog allowing users to view and update their display name and username -->
     <div class="modal-overlay" id="profileModalOverlay">
         <div class="profile-modal">
             <div class="modal-header">
@@ -239,7 +239,7 @@
         </div>
     </div>
 
-    <!-- Logout Modal -->
+    <!-- Logout Modal: Confirmation dialog to safely sign out the user from their active session -->
     <div class="modal-overlay" id="logoutModalOverlay">
         <div class="profile-modal logout-modal" style="max-width: 380px;">
             <div class="modal-header">
@@ -255,7 +255,7 @@
         </div>
     </div>
 
-    <!-- Delete Account Modal -->
+    <!-- Delete Account Modal: High-friction confirmation dialog to permanently erase a user's account and associated data -->
     <div class="modal-overlay" id="deleteAccountModalOverlay">
         <div class="profile-modal" style="max-width: 440px; text-align: center; padding: 40px 30px; margin: 0 auto;">
             <div class="modal-icon-container" style="background: #fee2e2; color: #ef4444; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
@@ -272,7 +272,7 @@
         </div>
     </div>
 
-    <!-- Auth Modal (Sign in / Sign up) -->
+    <!-- Auth Modal (Sign in / Sign up): Multi-step interface handling email/password authentication, OTP verification, and Google Sign-in -->
     <div class="modal-overlay" id="authModalOverlay">
         <div class="profile-modal auth-modal" style="max-width: 400px; padding: 40px 32px; position: relative;">
             <button class="close-modal-btn" id="closeAuthModalBtn" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
@@ -367,7 +367,7 @@
         </div>
     </div>
 
-    <!-- Info/Prompt Modal -->
+    <!-- Info/Prompt Modal: General purpose dialog used to display system messages or prompt unauthenticated users to log in -->
     <div class="modal-overlay" id="infoModalOverlay">
         <div class="profile-modal logout-modal" style="max-width: 400px; padding: 32px;">
             <div class="modal-header" style="justify-content: center; margin-bottom: 24px;">
@@ -385,7 +385,7 @@
         </div>
     </div>
 
-    <!-- Feedback Modal -->
+    <!-- Feedback Modal: Interface for users to submit star ratings and textual feedback, including a success confirmation view -->
     <div class="modal-overlay" id="feedbackModalOverlay">
         <div class="profile-modal feedback-modal">
             <div class="modal-header">
@@ -433,7 +433,7 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Delete Chat Confirmation Modal: Warns users before permanently removing a specific conversation from their history -->
     <div class="modal-overlay" id="deleteConfirmModalOverlay">
         <div class="profile-modal auth-modal" style="text-align: center; max-width: 380px; padding: 24px;">
             <div class="modal-header" style="justify-content: center; margin-bottom: 8px; border:none; padding-bottom: 0;">
@@ -450,7 +450,7 @@
         </div>
     </div>
 
-    <!-- Rename Chat Modal -->
+    <!-- Rename Chat Modal: Input dialog allowing users to assign custom names to existing chat sessions -->
     <div class="modal-overlay" id="renameChatModalOverlay">
         <div class="profile-modal auth-modal" style="text-align: center; max-width: 380px; padding: 24px;">
             <div class="modal-header" style="justify-content: center; margin-bottom: 16px; border:none; padding-bottom: 0;">
@@ -470,7 +470,7 @@
         </div>
     </div>
 
-    <!-- Global Toast Notifications -->
+    <!-- Global Toast Notifications: Fixed container for sliding, non-blocking alert bubbles (success/error messages) -->
     <div id="toastContainer" class="toast-container"></div>
 
     <script src="script.js"></script>

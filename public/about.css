@@ -1,3 +1,15 @@
+/* ==========================================================================
+   About Page Styles
+   Standalone stylesheet for the About page. Defines page-specific layout,
+   typography overrides, and component styling such as the hero section
+   and feature grids.
+   ========================================================================== */
+
+/* 
+   Root Variables for About Page
+   Redefines necessary theme variables to ensure the standalone page 
+   matches the global design system without needing base.css.
+*/
 :root {
     --bg-dark: #0a0a0c;
     --chat-bg: #0d0d0f;
@@ -38,12 +50,22 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
+/* 
+   Page Container
+   Centralizes the content with a max width and provides consistent 
+   vertical padding.
+*/
 .about-container {
     max-width: 900px;
     margin: 0 auto;
     padding: 100px 24px;
 }
 
+/* 
+   Hero Section
+   Styles the top introductory area containing the large gradient text 
+   and primary call-to-action button.
+*/
 .hero-section {
     text-align: center;
     margin-bottom: 120px;
@@ -86,6 +108,11 @@ body {
     opacity: 0.95;
 }
 
+/* 
+   About Content & Typography
+   Styles the main explanatory text blocks, section dividers, and
+   ensures proper spacing between different information segments.
+*/
 .about-content {
     display: flex;
     flex-direction: column;
@@ -113,6 +140,10 @@ body {
     width: 100%;
 }
 
+/* 
+   Capabilities Grid
+   A CSS grid layout to cleanly display features/capabilities side-by-side.
+*/
 .capabilities-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -181,6 +212,11 @@ body {
     margin-bottom: 32px;
 }
 
+/* 
+   Animation Utilities
+   Base classes for scroll-triggered fade-in animations to make the
+   page content reveal dynamically.
+*/
 /* Base Fade-in animation */
 .fade-in {
     opacity: 0;
@@ -193,6 +229,10 @@ body {
     transform: translateY(0);
 }
 
+/* 
+   Responsive Breakpoints
+   Adjusts grid columns, padding, and font sizes for mobile devices.
+*/
 /* Responsive */
 @media (max-width: 768px) {
     .capabilities-list {

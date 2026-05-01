@@ -1,3 +1,14 @@
+/**
+ * Message Model
+ * 
+ * Features:
+ * - Represents individual messages within a Conversation thread.
+ * - Supports different roles: 'user', 'bot', and 'system' (though system is reserved).
+ * - Links directly back to the parent Conversation document.
+ * - Tracks which AI provider generated the response (for bot messages).
+ * - Indicates if a fallback was triggered to generate this specific message.
+ * - Retains chronological order using the 'createdAt' timestamp.
+ */
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({

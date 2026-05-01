@@ -1,3 +1,14 @@
+/**
+ * Authentication Middleware (auth.js)
+ * 
+ * Features:
+ * - Protects secure routes by ensuring a valid JSON Web Token (JWT) is provided.
+ * - Extracts the token from the "Authorization: Bearer <token>" HTTP header.
+ * - Verifies the token's validity and expiration against the JWT_SECRET.
+ * - Decodes the payload and attaches the user information (e.g., userId, email)
+ *   to the request object (req.user) for downstream handlers.
+ * - Responds with a 401 Unauthorized status if the token is missing, invalid, or expired.
+ */
 const jwt = require('jsonwebtoken');
 
 const requireAuth = (req, res, next) => {

@@ -1,3 +1,12 @@
+/**
+ * help.js
+ * 
+ * Features:
+ * - Icon Initialization: Sets up Lucide icons for UI elements.
+ * - Theme Handling: Loads the user's preferred theme from localStorage (e.g., solarized-dark, light) and applies it to the document.
+ * - Accordion Logic: Implements interactive accordion functionality for the FAQ section, allowing users to toggle answers while automatically closing other open items.
+ */
+
 // Initialize Lucide Icons
 lucide.createIcons();
 

@@ -1,3 +1,12 @@
+/**
+ * about.js
+ * 
+ * Features:
+ * - Icon Initialization: Sets up Lucide icons for UI elements.
+ * - Theme Handling: Loads the saved theme from localStorage (e.g., solarized-dark, light) and applies it to the document to maintain user preference.
+ * - Fade-in Animations: Sets up an Intersection Observer to trigger fade-in animations when elements with the '.fade-in' class scroll into view.
+ */
+
 // Initialize Lucide Icons
 lucide.createIcons();
 

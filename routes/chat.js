@@ -1,3 +1,17 @@
+/**
+ * Chat Routes (routes/chat.js)
+ * 
+ * Features:
+ * - All routes are protected and require user authentication.
+ * - Fetches a user's entire list of chat conversations (`GET /history`).
+ * - Retrieves all messages for a specific conversation (`GET /:conversationId`).
+ * - Processes new user prompts, creates conversations if needed, fetches context,
+ *   and queries the LLM fallback service for a response (`POST /`).
+ * - Allows users to edit past messages and regenerates the conversation flow
+ *   from that point onwards, discarding subsequent messages (`PUT /message/:messageId`).
+ * - Supports deleting entire conversations (`DELETE /:conversationId`).
+ * - Supports renaming conversation titles (`PUT /:conversationId/rename`).
+ */
 const express = require('express');
 const router = express.Router();
 const Conversation = require('../models/Conversation');

@@ -1,3 +1,14 @@
+/* ==========================================================================
+   Help & FAQ Page Styles
+   Standalone stylesheet for the Help Center. Defines layout for FAQs, 
+   accordion functionality, and support contact cards.
+   ========================================================================== */
+
+/* 
+   Root Variables for Help Page
+   Redefines necessary theme variables so the standalone page maintains
+   the application's design system independently.
+*/
 :root {
     --bg-dark: #0a0a0c;
     --chat-bg: #0d0d0f;
@@ -38,6 +49,10 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
+/* 
+   Page Container & Layout Wrapper
+   Centralizes the content horizontally and adds vertical breathing room.
+*/
 .help-container {
     max-width: 800px;
     margin: 0 auto;
@@ -125,6 +140,11 @@ body {
     margin-right: 4px;
 }
 
+/* 
+   Accordion Component (FAQ Sections)
+   Styles the expandable/collapsible questions and answers. Manages the
+   transition of max-height to create smooth sliding animations.
+*/
 /* Accordion Styles */
 .accordion {
     display: flex;
@@ -194,6 +214,11 @@ body {
     line-height: 1.7;
 }
 
+/* 
+   Contact Support Card
+   A visually distinct block at the bottom of the page providing
+   direct contact methods like email and social links.
+*/
 /* Contact Card */
 .contact-card {
     background: var(--chat-bg);
@@ -249,6 +274,10 @@ body {
     margin: 0 auto;
 }
 
+/* 
+   Responsive Breakpoints
+   Adjusts padding, font sizes, and flex directions for mobile devices.
+*/
 /* Responsive */
 @media (max-width: 600px) {
     .help-container {

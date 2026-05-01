@@ -1,3 +1,16 @@
+/**
+ * server.js
+ * 
+ * Features:
+ * - Entry point for the AI Mitra backend application.
+ * - Initializes the Express.js application and configures global middleware
+ *   (CORS, JSON parsing, serving static files from the 'public' directory).
+ * - Connects to the MongoDB database using Mongoose.
+ * - Sets up routing by mounting modular route handlers for authentication (/api/auth),
+ *   user management (/api/user), and chat features (/api/chat).
+ * - Configures application to trust proxy headers for environments like Render.
+ * - Starts the HTTP server on the specified port.
+ */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');

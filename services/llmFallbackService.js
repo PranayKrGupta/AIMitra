@@ -1,3 +1,15 @@
+/**
+ * LLM Fallback Service (llmFallbackService.js)
+ * 
+ * Features:
+ * - Provides a robust, unified interface for querying multiple AI models (Google Gemini and Cohere).
+ * - Implements a tiered fallback mechanism to handle API rate limits (429s), timeouts, or service unavailability (503s).
+ * - Includes a Circuit Breaker pattern to temporarily skip failing models and prevent cascading delays.
+ * - Automatically formats the prompt and conversation history specifically for each provider's API requirements.
+ * - Allows manual overriding of the fallback chain via a 'requestedModel' parameter.
+ * - Logs all interactions, fallback events, and selected providers to the database via the ChatLog model.
+ * - Utilizes timeouts to ensure the application remains responsive if an API hangs.
+ */
 require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { CohereClient } = require('cohere-ai');

@@ -1,3 +1,14 @@
+/* ==========================================================================
+   Modals & Overlay Styles
+   Handles the appearance of pop-up modals (like User Profile, Feedback) 
+   and the backdrop overlay that appears behind them.
+   ========================================================================== */
+
+/* 
+   Modal Overlay
+   The semi-transparent dark background that covers the screen when a modal
+   is active, preventing interaction with the rest of the application.
+*/
 /* Modal Overlay */
 .modal-overlay {
     position: fixed;
@@ -21,6 +32,11 @@
     visibility: visible;
 }
 
+/* 
+   Profile/Base Modal Structure
+   Standard styling for modal dialog boxes. Sets max-width, background,
+   border radius, and subtle animations for when it enters the screen.
+*/
 .profile-modal {
     background: var(--chat-bg);
     border: 1px solid var(--border-color);
@@ -179,6 +195,10 @@
 }
 
 
+/* 
+   Feedback Modal Specifics
+   Overrides and specific styles tailored for the feedback form modal.
+*/
 /* Feedback Modal Specifics */
 .feedback-modal {
     max-width: 540px;
@@ -268,6 +288,11 @@
     opacity: 1 !important;
 }
 
+/* 
+   Social & Multi-step Auth Styles
+   Buttons and elements used in authentication modals, specifically
+   the Google sign-in buttons and account selection items.
+*/
 /* Social & Multi-step Auth Styles */
 .social-auth-btn {
     width: 100%;

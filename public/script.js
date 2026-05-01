@@ -1,3 +1,21 @@
+/**
+ * script.js
+ * 
+ * Features:
+ * - DOM Element Initialization: Caches frequently used DOM elements.
+ * - App State Management: Tracks current theme, user info, auth token, conversation ID, and message editing state.
+ * - Theme Handling: Supports light, solarized-dark, and solarized-light themes.
+ * - Auth Architecture: Fetches user profiles, handles simulated/real login & logout, and manages chat history fetching based on auth status.
+ * - Chat History Management: Loads specific conversations, rename chats, and deletes chats.
+ * - Dynamic Landing UI: Cycles landing page text when the user is logged out and initializes animations.
+ * - Model Selector UI: Interactivity for selecting AI models (e.g., auto, gemini, local).
+ * - Voice Input: Integrates Web Speech API for speech-to-text functionality with visual audio wave feedback.
+ * - Chat Interactions: Auto-grows input textarea, sends new messages, edits existing messages, and simulates typing indicators.
+ * - Markdown & Code Formatting: Uses marked.js to render markdown and highlight.js to format code blocks.
+ * - Export Options: Allows exporting chat as PDF, DOCX, or TXT formats.
+ * - Utility Modals: Custom confirmation overlays and toast notifications for user interactions.
+ */
+
 // Initialize Lucide Icons
 lucide.createIcons();
 
@@ -1352,7 +1370,7 @@ const forgotPasswordContainer = document.getElementById('forgotPasswordContainer
 const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
 let isSignupMode = false;
-// let loginAttempts = 0; // Removed attempt tracking as per request
+// let loginAttempts = 0; 
 
 function setAuthMode(signup) {
     isSignupMode = signup;

@@ -1,3 +1,14 @@
+/* ==========================================================================
+   Sidebar Component Styles
+   Handles the styling, transitions, and layout of the application sidebar.
+   Includes responsive behavior and collapsed/expanded state management.
+   ========================================================================== */
+
+/* 
+   Main Sidebar Container
+   Defines width, background, and flexbox layout. Hides default scrollbars
+   while allowing scrolling for overflow content.
+*/
 /* Sidebar Styling */
 .sidebar {
     width: var(--sidebar-width);
@@ -16,6 +27,10 @@
     display: none;
 }
 
+/* 
+   Sidebar Header Section
+   Contains the logo (if present inside sidebar) and the New Chat button.
+*/
 .sidebar-header {
     padding: 24px 16px;
     display: flex;
@@ -25,6 +40,10 @@
 
 
 
+/* 
+   New Chat Button
+   Styling for the primary action button to create a new chat session.
+*/
 .new-chat-btn {
     display: flex;
     align-items: center;
@@ -61,6 +80,11 @@
     letter-spacing: 0.5px;
 }
 
+/* 
+   Chat History List
+   Styles for the chat session history container and individual items.
+   Includes hover effects, active states, and action buttons.
+*/
 .chat-history {
     list-style: none;
     display: flex;
@@ -137,6 +161,11 @@
     height: 16px;
 }
 
+/* 
+   Login Promo Card
+   A promotional block shown to unauthenticated users encouraging them to log in.
+   Adjusts colors based on the current theme.
+*/
 /* Login Promo Card */
 .login-promo-card {
     background: #e9eef6;
@@ -183,6 +212,10 @@
     transform: scale(1.02);
 }
 
+/* 
+   Sidebar Footer Section
+   Contains settings button, user profile information, and theme toggles.
+*/
 .sidebar-footer {
     padding: 16px;
     border-top: 1px solid var(--border-color);
@@ -258,6 +291,11 @@
     height: 20px;
 }
 
+/* 
+   Settings Dropdown Menu
+   Styles the popup menu that appears when clicking the settings gear icon.
+   Uses absolute positioning and animations for visibility.
+*/
 .settings-dropdown {
     position: absolute;
     bottom: calc(100% + 5px); 
@@ -322,6 +360,11 @@
     margin: 6px 4px;
 }
 
+/* 
+   Responsive Logic & Collapsed Sidebar State
+   Styles specific to screens larger than 769px where the sidebar can toggle
+   between full width and a collapsed (icon-only) state.
+*/
 /* Collapsed Sidebar Logic */
 @media (min-width: 769px) {
     .sidebar.collapsed {
@@ -381,6 +424,11 @@
     }
 }
 
+/* 
+   Mobile Sidebar & Overlay
+   On smaller screens (< 768px), the sidebar acts as a drawer that slides in
+   from the left. An overlay is displayed behind it to dim the main content.
+*/
 @media (max-width: 768px) {
     .sidebar {
         position: absolute;

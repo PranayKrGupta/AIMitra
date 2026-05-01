@@ -1,3 +1,15 @@
+/**
+ * Authentication Routes (routes/auth.js)
+ * 
+ * Features:
+ * - Handles Google OAuth 2.0 login / registration flow (`/google-login`).
+ * - Sends One-Time Passwords (OTPs) via email for email-based registration (`/send-otp`).
+ * - Registers new users and verifies their OTP (`/signup`).
+ * - Authenticates returning users via email and password, issuing a JWT (`/login`).
+ * - Manages the forgot password workflow, generating reset tokens and sending emails (`/forgot-password`).
+ * - Validates tokens and updates user passwords (`/reset-password`).
+ * - Integrates Nodemailer for sending transactional emails (OTPs and Reset links).
+ */
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');

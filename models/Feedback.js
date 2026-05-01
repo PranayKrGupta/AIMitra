@@ -1,3 +1,13 @@
+/**
+ * Feedback Model
+ * 
+ * Features:
+ * - Stores user-submitted feedback about the AI Mitra application.
+ * - Links feedback to the specific User who submitted it.
+ * - Enforces a rating scale of 1 to 5 stars.
+ * - Captures additional textual comments provided by the user.
+ * - Automatically tracks the submission timestamp.
+ */
 const mongoose = require('mongoose');
 
 const feedbackSchema = new mongoose.Schema({

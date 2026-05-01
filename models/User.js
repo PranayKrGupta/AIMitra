@@ -1,3 +1,15 @@
+/**
+ * User Model
+ * 
+ * Features:
+ * - Manages user authentication and profile data.
+ * - Supports both traditional email/password and Google OAuth workflows.
+ * - Handles OTP (One Time Password) verification fields for sign-ups.
+ * - Manages password reset tokens and their expiration for account recovery.
+ * - Stores user profile information like full name, username, and email.
+ * - Includes a pre-save middleware to securely hash passwords using bcrypt
+ *   before they are persisted to the database.
+ */
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

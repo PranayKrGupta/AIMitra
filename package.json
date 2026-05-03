@@ -1,24 +1,24 @@
 {
-  "name": "webdev_project",
+  "name": "aimitra",
   "version": "1.0.0",
   "description": "",
-  "main": "about.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PranayKrGupta/WebDev_Project.git"
+    "url": "git+https://github.com/PranayKrGupta/AIMitra.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/PranayKrGupta/WebDev_Project/issues"
+    "url": "https://github.com/PranayKrGupta/AIMitra/issues"
   },
-  "homepage": "https://github.com/PranayKrGupta/WebDev_Project#readme",
+  "homepage": "https://github.com/PranayKrGupta/AIMitra#readme",
   "dependencies": {
     "@emailjs/nodejs": "^5.0.2",
     "@google/genai": "^1.50.1",

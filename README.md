@@ -1,7 +1,6 @@
 # 🤖 AI Mitra - Advanced Multi-LLM Chat Ecosystem
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=render)](https://aimitra.onrender.com/)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/PranayKrGupta/AIMitra)
+[**Live Demo**](https://aimitra.onrender.com/) | [**GitHub Repository**](https://github.com/PranayKrGupta/AIMitra)
 
 AI Mitra is a sophisticated, full-stack AI chat application designed to provide a seamless and resilient conversational experience. By leveraging a tiered fallback mechanism across multiple Large Language Models (LLMs) like Google Gemini and Cohere, AI Mitra ensures high availability even during API rate limits or service outages.
 

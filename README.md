@@ -41,7 +41,7 @@ AI Mitra is a sophisticated, full-stack AI chat application designed to provide 
 - **Database**: MongoDB (Mongoose ODM).
 - **AI Models**: Google Gemini (1.5 Flash, 2.0 Flash, 1.5 Pro), Cohere (Command-R).
 - **Authentication**: JWT, BcryptJS.
-- **Email**: Resend API integration for transactional emails.
+- **Email**: EmailJS Node.js SDK for transactional emails.
 
 ---
 
@@ -68,11 +68,22 @@ Create a `.env` file in the root directory and populate it with the following:
 ```env
 PORT=3000
 MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_super_secret_key
+JWT_SECRET=your_jwt_secret_key
+BASE_URL=http://localhost:3000
+
+# AI Configuration
 GEMINI_API_KEY=your_gemini_api_key
 COHERE_API_KEY=your_cohere_api_key
-RESEND_API_KEY=your_resend_api_key
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+
+# EmailJS Configuration
+EMAILJS_SERVICE_ID=your_service_id
+EMAILJS_TEMPLATE_SIGNUP=your_signup_template_id
+EMAILJS_TEMPLATE_RESET=your_reset_template_id
+EMAILJS_PUBLIC_KEY=your_public_key
+EMAILJS_PRIVATE_KEY=your_private_key
 ```
+
 
 ### 4. Run the Application
 ```bash
